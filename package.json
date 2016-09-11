@@ -1,0 +1,25 @@
+{
+  "name": "andux",
+  "version": "1.0.0",
+  "description": "Glues Redux and Angular 2 together",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "redux": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^2.2.33",
+    "jasmine-core": "^2.5.1",
+    "karma": "^1.3.0",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-mocha-reporter": "^2.1.0",
+    "karma-phantomjs-launcher": "^1.0.2",
+    "karma-typescript": "^2.0.4",
+    "karma-typescript-preprocessor": "^0.2.1"
+  }
+}
