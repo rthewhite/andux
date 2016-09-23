@@ -22,7 +22,6 @@ export function Transformable(reducer) {
 
   // Check if the reducer is already transformable
   if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, '_transformable')) {
-
     // Define property indicating this reducer is transformable
     Object.defineProperty(reducer.prototype, '_transformable', {
       value: true,
@@ -41,7 +40,8 @@ export function Transformable(reducer) {
         });
 
         return state;
-      }
+      },
+      writable: true
     });
 
     // Define the array of transformers

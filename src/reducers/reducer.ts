@@ -2,16 +2,16 @@ import { Map } from 'immutable';
 
 import { convertActionTypeToMethodName } from '../utils';
 
-export class Reducer {
-  public initialState = Map();
+export class AnduxReducer {
+  public initialState: any;
 
   constructor() {
-    // reducer loses it's scope when passed to Redux, create binded version
-    // this['reduce'] = this['reduce'].bind(this);
+    // Reduce method losed scope when passed to redux
+    this['reduce'] = this['reduce'].bind(this);
   }
 }
 
-Object.defineProperty(Reducer.prototype, `reduce`, {
+Object.defineProperty(AnduxReducer.prototype, `reduce`, {
   value: function(state?: Map<string, any>, action?: any) {
     if (action && state) {
       // Convert the action type to method name
@@ -24,8 +24,14 @@ Object.defineProperty(Reducer.prototype, `reduce`, {
       }
     }
 
+    // No state and no initialState, we got a problem
+    if (!state && !this.initialState) {
+      throw new Error('Reducer doesnt have an initialState');
+    }
+
     // If we are doing nothing, return the state or initialState if no state is given
     return state || this.initialState;
-  }
+  },
+  writable: true
 });
 

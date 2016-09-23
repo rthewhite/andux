@@ -7,7 +7,7 @@ chai.use(sinonChai);
 
 import { Map } from 'immutable';
 
-import { Reducer } from './reducer';
+import { AnduxReducer } from './reducer';
 import { Transformer, Transformable, } from './transformable';
 
 describe('Transformer', () => {
@@ -65,7 +65,7 @@ describe('Transformer', () => {
 describe('Transformable', () => {
   it('should have transform, addTransformer, removeTransformer methods', () => {
     @Transformable
-    class MyReducer extends Reducer {}
+    class MyReducer extends AnduxReducer {}
 
     const reducer = new MyReducer();
     expect(reducer['addTransformer']).to.exist;

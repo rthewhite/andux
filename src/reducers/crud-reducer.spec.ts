@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { Map, List } from 'immutable';
 
-import { Reducer } from './reducer';
+import { AnduxReducer } from './reducer';
 import { CrudReducer } from './crud-reducer';
 
 @CrudReducer()
-class SomeReducer extends Reducer {}
+class SomeReducer extends AnduxReducer {}
 const reducer = new SomeReducer();
 
 describe('CrudReducer', () => {
@@ -13,7 +13,7 @@ describe('CrudReducer', () => {
     describe('loadItemsStarted', () => {
       it('should define only define a loadItemsStarted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           loadItemsMyStarted() {
             return 'foobar';
           }
@@ -41,7 +41,7 @@ describe('CrudReducer', () => {
     describe('loadItemsSuccess', () => {
       it('should only define a loadItemsSuccess handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           loadItemsMySuccess() {
             return 'foobar';
           }
@@ -72,7 +72,7 @@ describe('CrudReducer', () => {
     describe('loadItemsCompleted', () => {
       it('should only define a loadItemsCompleted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           loadItemsMyCompleted() {
             return 'foobar';
           }
@@ -99,7 +99,7 @@ describe('CrudReducer', () => {
     describe('loadItemsFailed', () => {
       it('should only define a loadItemsFailed handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           loadItemsMyFailed() {
             return 'foobar';
           }
@@ -129,7 +129,7 @@ describe('CrudReducer', () => {
     describe('getItemStarted', () => {
       it('should only define a getItemStarted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           getItemMyStarted() {
             return 'foobar';
           }
@@ -156,7 +156,7 @@ describe('CrudReducer', () => {
     describe('getItemSuccess', () => {
       it('should only define a getItemSuccessHandler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           getItemMySuccess() {
             return 'foobar';
           }
@@ -216,7 +216,7 @@ describe('CrudReducer', () => {
     describe('getItemFailed', () => {
       it('should only define a getItemFailed handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           getItemMyFailed() {
             return 'foobar';
           }
@@ -238,7 +238,7 @@ describe('CrudReducer', () => {
     describe('getItemCompleted', () => {
       it('should define a getItemCompleted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           getItemMyCompleted() {
             return 'foobar';
           }
@@ -262,7 +262,7 @@ describe('CrudReducer', () => {
     describe('updateItemStarted', () => {
       it('should only define a updateItemStarted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           updateItemMyStarted() {
             return 'foobar';
           }
@@ -285,7 +285,7 @@ describe('CrudReducer', () => {
     describe('updateItemSuccess', () => {
       it('should onlye define a updateItemSuccess handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           updateItemMySuccess() {
             return 'foobar';
           }
@@ -333,7 +333,7 @@ describe('CrudReducer', () => {
     describe('updateItemFailed', () => {
       it('should only define a updateItemFailed handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           updateItemMyFailed() {
             return 'foobar';
           }
@@ -361,7 +361,7 @@ describe('CrudReducer', () => {
     describe('updateItemCompleted', () => {
       it('should only define a updateItemCompleted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           updateItemMyCompleted() {
             return 'foobar';
           }
@@ -385,7 +385,7 @@ describe('CrudReducer', () => {
     describe('deleteItemStarted', () => {
       it('should only define a deleteItemStarted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           updateItemMyCompleted() {
             return 'foobar';
           }
@@ -408,7 +408,7 @@ describe('CrudReducer', () => {
     describe('deleteItemSuccess', () => {
       it('should only define a deleteItemSuccess handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           deleteItemMySuccess() {
             return 'foobar';
           }
@@ -457,7 +457,7 @@ describe('CrudReducer', () => {
     describe('deleteItemFailed', () => {
       it('should only define a deleteItemFailed handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           deleteItemMyFailed() {
             return 'foobar';
           }
@@ -479,7 +479,7 @@ describe('CrudReducer', () => {
     describe('deletingItemCompleted', () => {
       it('should only define a deleteItemCompleted handler if none is present', () => {
         @CrudReducer()
-        class MyReducer extends Reducer {
+        class MyReducer extends AnduxReducer {
           deleteItemMyCompleted() {
             return 'foobar';
           }

@@ -1,11 +1,13 @@
 import { expect } from 'chai';
 import { Map, List } from 'immutable';
 
-import { Reducer } from './reducer';
+import { AnduxReducer } from './reducer';
 import { SortableReducer } from './sortable-reducer';
 
 @SortableReducer()
-class AwesomeReducer extends Reducer {}
+class AwesomeReducer extends AnduxReducer {
+  initialState = 'foobar';
+}
 
 const reducer = new AwesomeReducer();
 

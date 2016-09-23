@@ -19,7 +19,9 @@ export function SortableReducer(options = {}) {
       let items: List<any> = state.get('items');
 
       if (sortProperty && items.size > 0) {
-        items = <List<any>> items.sortBy(item => item.get(sortProperty));
+        items = <List<any>> items.sortBy(item => {
+          return item[sortProperty] || item.get(sortProperty);
+        });
 
         if (sortReverse) {
           items = <List<any>> items.reverse();

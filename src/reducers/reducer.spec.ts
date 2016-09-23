@@ -1,28 +1,40 @@
 import { expect } from 'chai';
 import { Map } from 'immutable';
 
-import { Reducer } from './reducer';
+import { AnduxReducer } from './reducer';
 
 describe('Reducer', () => {
   it('should properly construct', () => {
-    const reducer = new Reducer();
-    expect(reducer).to.exist;
-    expect(reducer instanceof Reducer).to.equal(true);
-  });
+    class MyReducer extends AnduxReducer {
+      initialState = 'foobar';
+    }
 
-  it('should have an initialState property', () => {
-    const reducer = new Reducer();
-    expect(reducer.initialState).to.exist;
+    const reducer = new MyReducer();
+    expect(reducer).to.exist;
+    expect(reducer instanceof AnduxReducer).to.equal(true);
   });
 
   describe('reduce', () => {
     it('should return initialState of no state provided', () => {
-      const reducer = new Reducer();
-      const initialState = Map({ foo: 'foobar' });
-      reducer.initialState = initialState;
+      class MyReducer extends AnduxReducer {
+        initialState = 'foobar';
+      }
 
+      const reducer = new MyReducer();
       const result = reducer['reduce'](undefined, { type: 'SOME_ACTION'});
-      expect(result).to.equal(initialState);
+      expect(result).to.equal('foobar');
+    });
+
+    it('should throw an error when no state is passed and no initialState is set', () => {
+      class MyReducer extends AnduxReducer {}
+
+      const reducer = new MyReducer();
+
+      function reduce() {
+        reducer['reduce'](undefined, { type: 'SOME_ACTION'});
+      }
+
+      expect(reduce).to.throw('Reducer doesnt have an initialState');
     });
 
     it('should call the appropriate method on the class based on the actionType', () => {
@@ -30,7 +42,8 @@ describe('Reducer', () => {
         foo: 'bar'
       });
 
-      class MyReducer extends Reducer {
+      class MyReducer extends AnduxReducer {
+        initialState = myState;
         myAwesomeAction(state, action) {
           state = state.set('foo', 'not bar anymore');
           return state;

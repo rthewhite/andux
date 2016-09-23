@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { Map, List } from 'immutable';
 
-import { Reducer } from './reducer';
+import { AnduxReducer } from './reducer';
 import { PaginatableReducer } from './paginatable-reducer';
 
 @PaginatableReducer()
-class AwesomeReducer extends Reducer {}
+class AwesomeReducer extends AnduxReducer {}
 
 const reducer = new AwesomeReducer();
 
