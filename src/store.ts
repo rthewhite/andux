@@ -31,6 +31,10 @@ export class AnduxStore {
     });
   }
 
+  get state(): any {
+    return this.store.getState();
+  }
+
   getState(): any {
     return this.store.getState();
   }
