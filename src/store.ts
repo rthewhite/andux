@@ -39,8 +39,8 @@ export class AnduxStore {
     return this.store.getState();
   }
 
-  dispatch(action: Action): any {
-    return this.store.dispatch(action);
+  dispatch(action: Action | Observable<any> | Function ): any {
+    return this.store.dispatch(<Action>action);
   }
 
   subscribe(listener: Function): Function {
