@@ -3,14 +3,18 @@ import { List } from 'immutable';
 import { getReducerClassName } from '../utils';
 import { Transformer, Transformable } from './transformable';
 
-export function SortableReducer(options = {}) {
+export function SortableReducer(reducerName: string) {
   return (reducer) => {
     // Make sure it's transformable
     Transformable(reducer);
 
+    if (!reducerName) {
+      throw new Error('Should pass an reducerName to sortableReducer decorator');
+    }
+
     // Grabs the reducer name, we use the name of the reducer to by convention setup
     // the names of the actionListeners
-    const name = getReducerClassName(reducer.name);
+    const name = getReducerClassName(reducerName);
 
     // Sort function
     const sortFunction = function(state) {

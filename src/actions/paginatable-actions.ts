@@ -1,15 +1,11 @@
-import {
-  getActionsClassName
-} from '../utils';
-
-export function PaginatableActions(): Function {
+export function PaginatableActions(reducer: string): Function {
   return (target: any, key: string, descriptor: any ) => {
-    const className = getActionsClassName(target.name).toUpperCase();
+    const reducerName = reducer.toUpperCase();
 
     Object.defineProperty(target.prototype, 'changePage', {
       value: function(page: number) {
         return {
-          type: `CHANGE_PAGE_${className}`,
+          type: `CHANGE_PAGE_${reducerName}`,
           payload: {
             page
           }
@@ -20,7 +16,7 @@ export function PaginatableActions(): Function {
     Object.defineProperty(target.prototype, 'changeItemsPerPage', {
       value: function(itemsPerPage: number) {
         return {
-          type: `CHANGE_ITEMS_PER_PAGE_${className}`,
+          type: `CHANGE_ITEMS_PER_PAGE_${reducerName}`,
           payload: {
             itemsPerPage
           }

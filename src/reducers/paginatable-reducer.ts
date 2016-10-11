@@ -1,14 +1,18 @@
 import { getReducerClassName } from '../utils';
 import { Transformer, Transformable } from './transformable';
 
-export function PaginatableReducer(options: Object = {}) {
+export function PaginatableReducer(reducerName: string) {
   return (reducer) => {
     // Make sure it's transformable
     Transformable(reducer);
 
+    if (!reducerName) {
+      throw new Error('Should pass an reducerName to paginatableReducer decorator');
+    }
+
     // Grabs the reducer name, we use the name of the reducer to by convention setup
     // the names of the actionListeners
-    const name = getReducerClassName(reducer.name);
+    const name = getReducerClassName(reducerName);
 
     // Defaults used when not defined on the state yet
     const defaults = {

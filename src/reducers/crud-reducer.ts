@@ -2,11 +2,11 @@ import { List } from 'immutable';
 
 import { getReducerClassName } from '../utils';
 
-export function CrudReducer(options: Object = {}) {
+export function CrudReducer(reducerName: string) {
   return (reducer) => {
     // Grabs the reducer name, we use the name of the reducer to by convention setup
     // the names of the actionListeners
-    const name = getReducerClassName(reducer.name);
+    const name = getReducerClassName(reducerName);
 
     // LOAD
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `loadItems${name}Started`)) {

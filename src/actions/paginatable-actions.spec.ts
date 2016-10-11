@@ -5,7 +5,7 @@ describe('PaginatableActions', () => {
   let actions;
 
   beforeEach(() => {
-    @PaginatableActions()
+    @PaginatableActions('Some')
     class SomeActions {}
 
     actions = new SomeActions();

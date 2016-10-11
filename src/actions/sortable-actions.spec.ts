@@ -5,7 +5,7 @@ describe('SorttableActions', () => {
   let actions;
 
   beforeEach(() => {
-    @SortableActions()
+    @SortableActions('Some')
     class SomeActions {}
 
     actions = new SomeActions();

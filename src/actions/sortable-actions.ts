@@ -1,15 +1,11 @@
-import {
-  getActionsClassName
-} from '../utils';
-
-export function SortableActions(): Function {
+export function SortableActions(reducer: string): Function {
   return (target: any, key: string, descriptor: any ) => {
-    const className = getActionsClassName(target.name).toUpperCase();
+    const reducerName = reducer.toUpperCase();
 
     Object.defineProperty(target.prototype, 'sort', {
       value: function(sortProperty: string, sortReverse: boolean) {
         return {
-          type: `SORT_${className}`,
+          type: `SORT_${reducerName}`,
           payload: {
             sortProperty,
             sortReverse

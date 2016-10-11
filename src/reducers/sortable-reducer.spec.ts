@@ -4,7 +4,7 @@ import { Map, List } from 'immutable';
 import { AnduxReducer } from './reducer';
 import { SortableReducer } from './sortable-reducer';
 
-@SortableReducer()
+@SortableReducer('Awesome')
 class AwesomeReducer extends AnduxReducer {
   initialState = 'foobar';
 }

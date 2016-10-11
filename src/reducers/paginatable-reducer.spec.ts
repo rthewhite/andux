@@ -4,7 +4,7 @@ import { Map, List } from 'immutable';
 import { AnduxReducer } from './reducer';
 import { PaginatableReducer } from './paginatable-reducer';
 
-@PaginatableReducer()
+@PaginatableReducer('Awesome')
 class AwesomeReducer extends AnduxReducer {}
 
 const reducer = new AwesomeReducer();
