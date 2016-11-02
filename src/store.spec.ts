@@ -141,15 +141,23 @@ describe('Store', () => {
     });
 
     it('Observable should only trigger when the observed value changes', () => {
-      const fooState = Map({foo: 'bar', bar: 'foo'});
+      const fooState = Map({
+        foo: 'bar',
+        bar: 'foo'
+      });
+
       const fooReducer = (state, action) => {
         if (action.type === 'CHANGE_FOO') {
-          state = state.set('foo', 'foo was changed');
+          state = state.setIn(['foo'], 'foo was changed');
         }
         return state || fooState;
       };
 
-      const barState = Map({ foo: 'bar', bar: 'foo'});
+      const barState = Map({
+        foo: 'bar',
+        bar: 'foo'
+      });
+
       const barReducer = (state, action) => {
         return state || barState;
       };
@@ -165,28 +173,47 @@ describe('Store', () => {
       });
 
       const store = new AnduxStore(rootReducer, initialState);
-      const fooObservable = store.observe('foo.foo');
-      const barObservable = store.observe('bar.foo');
-      const fooSpy = sinon.spy();
-      const barSpy = sinon.spy();
 
-      fooObservable.subscribe(fooSpy);
-      barObservable.subscribe(barSpy);
+      const fooSpy1 = sinon.spy();
+      const fooSpy2 = sinon.spy();
+      const barSpy1 = sinon.spy();
+      const barSpy2 = sinon.spy();
+
+      store.observe('foo.foo').subscribe(fooSpy1);
+      store.observe('foo.bar').subscribe(fooSpy2);
+
+      store.observe('bar.foo').subscribe(barSpy1);
+      store.observe('bar.bar').subscribe(barSpy2);
 
       // Called the first time with the initial value
-      expect(fooSpy).to.have.been.calledOnce;
-      expect(fooSpy).to.have.been.calledWith('bar');
+      expect(fooSpy1).to.have.been.calledOnce;
+      expect(fooSpy1).to.have.been.calledWith('bar');
 
-      expect(barSpy).to.have.been.calledOnce;
-      expect(barSpy).to.have.been.calledWith('bar');
+      expect(fooSpy2).to.have.been.calledOnce;
+      expect(fooSpy2).to.have.been.calledWith('foo');
+
+      expect(barSpy1).to.have.been.calledOnce;
+      expect(barSpy1).to.have.been.calledWith('bar');
+
+      expect(barSpy2).to.have.been.calledOnce;
+      expect(barSpy2).to.have.been.calledWith('foo');
 
       // Fire an action that should change foo, the observable should be notified
       store.dispatch({
         type: 'CHANGE_FOO'
       });
 
-      expect(fooSpy).to.have.been.calledTwice;
-      expect(fooSpy).to.have.been.calledWith('foo was changed');
+      expect(fooSpy1).to.have.been.calledTwice;
+      expect(fooSpy1).to.have.been.calledWith('foo was changed');
+
+      expect(fooSpy2).to.have.been.calledOnce;
+      expect(fooSpy2).to.have.been.calledWith('foo');
+
+      expect(barSpy1).to.have.been.calledOnce;
+      expect(barSpy1).to.have.been.calledWith('bar');
+
+      expect(barSpy2).to.have.been.calledOnce;
+      expect(barSpy2).to.have.been.calledWith('foo');
     });
 
     it('Should be able to unsubscribe', () => {
