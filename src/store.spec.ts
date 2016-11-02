@@ -143,48 +143,50 @@ describe('Store', () => {
     it('Observable should only trigger when the observed value changes', () => {
       const fooState = Map({foo: 'bar', bar: 'foo'});
       const fooReducer = (state, action) => {
-        if (action.type === 'CHANGE_BAR') {
-          state = state.set('bar', 'bar was changed');
-        } else if (action.type === 'CHANGE_FOO') {
+        if (action.type === 'CHANGE_FOO') {
           state = state.set('foo', 'foo was changed');
         }
-
         return state || fooState;
       };
 
+      const barState = Map({ foo: 'bar', bar: 'foo'});
+      const barReducer = (state, action) => {
+        return state || barState;
+      };
+
       const initialState = {
-        foo: fooState
+        foo: fooState,
+        bar: barState
       };
 
       const rootReducer = combineReducers<any>({
-        foo: fooReducer
+        foo: fooReducer,
+        bar: barReducer
       });
 
       const store = new AnduxStore(rootReducer, initialState);
-      const observable = store.observe('foo.foo');
-      const spy = sinon.spy();
+      const fooObservable = store.observe('foo.foo');
+      const barObservable = store.observe('bar.foo');
+      const fooSpy = sinon.spy();
+      const barSpy = sinon.spy();
 
-      observable.subscribe(spy);
+      fooObservable.subscribe(fooSpy);
+      barObservable.subscribe(barSpy);
 
       // Called the first time with the initial value
-      expect(spy).to.have.been.calledOnce;
-      expect(spy).to.have.been.calledWith('bar');
+      expect(fooSpy).to.have.been.calledOnce;
+      expect(fooSpy).to.have.been.calledWith('bar');
 
-      // This action should only change the bar value and not foo
-      store.dispatch({
-        type: 'CHANGE_BAR'
-      });
-
-      expect(spy).to.have.been.calledOnce;
-      expect(spy).to.have.been.calledWith('bar');
+      expect(barSpy).to.have.been.calledOnce;
+      expect(barSpy).to.have.been.calledWith('bar');
 
       // Fire an action that should change foo, the observable should be notified
       store.dispatch({
         type: 'CHANGE_FOO'
       });
 
-      expect(spy).to.have.been.calledTwice;
-      expect(spy).to.have.been.calledWith('foo was changed');
+      expect(fooSpy).to.have.been.calledTwice;
+      expect(fooSpy).to.have.been.calledWith('foo was changed');
     });
 
     it('Should be able to unsubscribe', () => {
@@ -207,15 +209,21 @@ describe('Store', () => {
 
       const store = new AnduxStore(rootReducer, initialState);
       const observable = store.observe('foo.foo');
-      const spy = sinon.spy();
 
-      const subscription = observable.subscribe(spy);
+      const spyOne = sinon.spy();
+      const spyTwo = sinon.spy();
 
-      expect(spy).to.have.been.calledOnce;
-      expect(spy).to.have.been.calledWith('bar');
+      const subscriptionOne = observable.subscribe(spyOne);
+      const subscriptionTwo = observable.subscribe(spyTwo);
 
-      // Unsubscribe
-      subscription.unsubscribe();
+      expect(spyOne).to.have.been.calledOnce;
+      expect(spyOne).to.have.been.calledWith('bar');
+
+      expect(spyTwo).to.have.been.calledOnce;
+      expect(spyTwo).to.have.been.calledWith('bar');
+
+      // Unsubscribe first one
+      subscriptionOne.unsubscribe();
 
       // We unsubscribed this action should have no effect
       store.dispatch({
@@ -223,8 +231,25 @@ describe('Store', () => {
         payload: 'bar 2'
       });
 
-      expect(spy).to.have.been.calledOnce;
-      expect(spy).to.have.been.calledWith('bar');
+      expect(spyOne).to.have.been.calledOnce;
+      expect(spyOne).to.have.been.calledWith('bar');
+
+      expect(spyTwo).to.have.been.calledTwice;
+      expect(spyTwo).to.have.been.calledWith('bar 2');
+
+      // Unsubscribe second one
+      subscriptionTwo.unsubscribe();
+
+      store.dispatch({
+        type: 'CHANGE_FOO',
+        payload: 'bar 3'
+      });
+
+      expect(spyOne).to.have.been.calledOnce;
+      expect(spyOne).to.have.been.calledWith('bar');
+
+      expect(spyTwo).to.have.been.calledTwice;
+      expect(spyTwo).to.not.have.been.calledWith('bar 3');
     });
   });
 });

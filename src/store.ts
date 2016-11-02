@@ -5,9 +5,16 @@ import { applyMiddleware, createStore, Middleware, Reducer, Store, compose } fro
 import { Action } from './actions';
 import { loggerMiddleware } from './middlewares';
 
+
+interface pathListener {
+  previousValue: any;
+  listeners: Array<Observable<any>>;
+}
+
+
 export class AnduxStore {
   private store: Store<any>;
-  private subscribers = new Map();
+  private pathListeners = {};
 
   constructor(
     rootReducer: Reducer<Function>,
@@ -50,21 +57,30 @@ export class AnduxStore {
   // Returns an observable that notifies on changes for
   // the given path
   observe(path: string) {
-    const currentValue = this.getValueForPath(path);
-
     const subscription = Observable.create((observer: Observer<any>) => {
+      const currentValue = this.getValueForPath(path);
+
       // Pass the initial value
       observer.next(currentValue);
 
-      // Register for changes
-      this.subscribers.set(observer, {
-        path: path,
-        previousValue: currentValue
-      });
+      // Register for future changes
+      if (this.pathListeners[path]) {
+        this.pathListeners[path].listeners.push(observer);
+      } else {
+        this.pathListeners[path] = {
+          previousValue: currentValue,
+          listeners: [observer]
+        };
+      }
 
       // Unsubscribe/cleanup
       return () => {
-        this.subscribers.delete(observer);
+        if (this.pathListeners[path].listeners.length === 1) {
+          delete this.pathListeners[path];
+        } else {
+          const index = this.pathListeners[path].listeners.indexOf(observer);
+          this.pathListeners[path].listeners.slice(index, 1);
+        }
       };
     });
 
@@ -73,15 +89,21 @@ export class AnduxStore {
 
   // Notifies observers if their value in the store has been changed
   private notifyObservers() {
-    this.subscribers.forEach((options, observer) => {
-      const currentValue = this.getValueForPath(options.path);
+    for (const key of Object.keys(this.pathListeners)) {
+      if (this.pathListeners.hasOwnProperty(key)) {
+        const currentValue = this.getValueForPath(key);
+        const previousValue = this.pathListeners[key].previousValue;
 
-      if (currentValue !== options.previousValue) {
-        observer.next(currentValue);
-        options.previousValue = currentValue;
-        this.subscribers.set(observer, options);
+        if (currentValue !== previousValue) {
+          const listeners = this.pathListeners[key].listeners;
+          for (let i = 0, len = listeners.length; i < len; i++) {
+            listeners[i].next(currentValue);
+          }
+        };
+
+        this.pathListeners[key].previousValue = currentValue;
       }
-    });
+    }
   }
 
   // Retrieves the value for the given path in the store
@@ -89,8 +111,6 @@ export class AnduxStore {
   private getValueForPath(path: string) {
     const splittedPath = path.split('.');
     const reducer = splittedPath[0];
-    const value = this.getState()[reducer].getIn(splittedPath.slice(1)) ;
-
-    return value;
+    return this.getState()[reducer].getIn(splittedPath.slice(1)) ;
   }
 }
