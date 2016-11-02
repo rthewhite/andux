@@ -20,6 +20,12 @@ export function PaginatableReducer(reducerName: string) {
       itemsPerPage: 10
     };
 
+    // Cached values to prevent the transform function from executing when
+    // there are no changes
+    let previousPageNr;
+    let previousItemsPerPage;
+    let previousItems;
+
     // Paginate method
     const paginateFunction = function(state) {
       // Make sure the needed information is on the state
@@ -31,19 +37,31 @@ export function PaginatableReducer(reducerName: string) {
         state = state.set('itemsPerPage', defaults.itemsPerPage);
       }
 
-      const pageNr = state.get('pageNr');
-      const itemsPerPage = state.get('itemsPerPage');
-      const items = state.get('items');
-
-      if (items.size <= itemsPerPage) {
-        state = state.set('page', items);
-      } else {
-        const start = (pageNr - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        state = state.set('page', items.slice(start, end));
+      if (!state.get('numberOfPages')) {
+        state = state.set('numberOfPages', 1);
       }
 
-      state = state.set('numberOfPages', Math.ceil(items.size / itemsPerPage));
+      const currentPageNr       = state.get('pageNr');
+      const currentItemsPerPage = state.get('itemsPerPage');
+      const currentItems        = state.get('items');
+
+      if (currentPageNr       !== previousPageNr        ||
+          currentItemsPerPage !== previousItemsPerPage  ||
+          currentItems        !== previousItems) {
+
+        if (currentItems.size <= currentItemsPerPage) {
+          state = state.set('page', currentItems);
+        } else {
+          const start = (currentPageNr - 1) * currentItemsPerPage;
+          const end = start + currentItemsPerPage;
+          state = state.set('page', currentItems.slice(start, end));
+          state = state.set('numberOfPages', Math.ceil(currentItems.size / currentItemsPerPage));
+
+          previousPageNr = currentPageNr;
+          previousItemsPerPage = currentItemsPerPage;
+          previousItems = currentItems;
+        }
+      }
 
       return state;
     };

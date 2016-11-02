@@ -16,22 +16,38 @@ export function SortableReducer(reducerName: string) {
     // the names of the actionListeners
     const name = getReducerClassName(reducerName);
 
+    // Cache previous values to prevent executing sort on every state change
+    let previousSortProperty;
+    let previousSortReverse;
+    let previousItems;
+
     // Sort function
     const sortFunction = function(state) {
-      const sortProperty: string = state.get('sortProperty');
-      const sortReverse: boolean = state.get('sortReverse');
-      let items: List<any> = state.get('items');
+      const currentSortProperty: string = state.get('sortProperty');
+      const currentSortReverse: boolean = state.get('sortReverse');
+      const currentItems: List<any> = state.get('items');
 
-      if (sortProperty && items.size > 0) {
-        items = <List<any>> items.sortBy(item => {
-          return item[sortProperty] || item.get(sortProperty);
-        });
+      if ( previousSortProperty !== currentSortProperty ||
+           previousSortReverse  !== currentSortReverse  ||
+           previousItems        !== currentItems
+      ) {
+        if (currentSortProperty && currentItems.size > 0) {
+          let items: List<any>;
 
-        if (sortReverse) {
-          items = <List<any>> items.reverse();
+          items = <List<any>> currentItems.sortBy(item => {
+            return item[currentSortProperty] || item.get(currentSortProperty);
+          });
+
+          if (currentSortReverse) {
+            items = <List<any>> items.reverse();
+          }
+
+          state = state.set('items', items);
+
+          previousItems         = items;
+          previousSortProperty  = currentSortProperty;
+          previousSortReverse   = currentSortReverse;
         }
-
-        state = state.set('items', items);
       }
 
       return state;
