@@ -56,7 +56,7 @@ export class AnduxStore {
 
   // Returns an observable that notifies on changes for
   // the given path
-  observe(path: string) {
+  observe(path: string): Observable<any> {
     const subscription = Observable.create((observer: Observer<any>) => {
       const currentValue = this.getValueForPath(path);
 

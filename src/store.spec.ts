@@ -5,7 +5,7 @@ import * as sinonChai  from 'sinon-chai';
 const expect = chai.expect;
 chai.use(sinonChai);
 
-import { Map } from 'immutable';
+import { Map, List } from 'immutable';
 import { combineReducers } from 'redux';
 import { Observable } from 'rxjs';
 import { AnduxStore } from './store';
@@ -143,13 +143,20 @@ describe('Store', () => {
     it('Observable should only trigger when the observed value changes', () => {
       const fooState = Map({
         foo: 'bar',
-        bar: 'foo'
+        bar: 'foo',
+        map: Map({
+          foo: 'bar',
+          list: List<any>([])
+        })
       });
 
       const fooReducer = (state, action) => {
         if (action.type === 'CHANGE_FOO') {
-          state = state.setIn(['foo'], 'foo was changed');
+          state = state.set('foo', 'foo was changed');
+        } else if (action.type === 'CHANGE_MAP') {
+          state = state.setIn(['map', 'foo'], 'map was changed');
         }
+
         return state || fooState;
       };
 
@@ -176,11 +183,16 @@ describe('Store', () => {
 
       const fooSpy1 = sinon.spy();
       const fooSpy2 = sinon.spy();
+      const fooSpy3 = sinon.spy();
+      const fooSpy4 = sinon.spy();
+
       const barSpy1 = sinon.spy();
       const barSpy2 = sinon.spy();
 
       store.observe('foo.foo').subscribe(fooSpy1);
       store.observe('foo.bar').subscribe(fooSpy2);
+      store.observe('foo.map.foo').subscribe(fooSpy3);
+      store.observe('foo.map.list').subscribe(fooSpy4);
 
       store.observe('bar.foo').subscribe(barSpy1);
       store.observe('bar.bar').subscribe(barSpy2);
@@ -191,6 +203,11 @@ describe('Store', () => {
 
       expect(fooSpy2).to.have.been.calledOnce;
       expect(fooSpy2).to.have.been.calledWith('foo');
+
+      expect(fooSpy3).to.have.been.calledOnce;
+      expect(fooSpy3).to.have.been.calledWith('bar');
+
+      expect(fooSpy4).to.have.been.calledOnce;
 
       expect(barSpy1).to.have.been.calledOnce;
       expect(barSpy1).to.have.been.calledWith('bar');
@@ -209,11 +226,38 @@ describe('Store', () => {
       expect(fooSpy2).to.have.been.calledOnce;
       expect(fooSpy2).to.have.been.calledWith('foo');
 
+      expect(fooSpy3).to.have.been.calledOnce;
+      expect(fooSpy3).to.have.been.calledWith('bar');
+
+      expect(fooSpy4).to.have.been.calledOnce;
+
       expect(barSpy1).to.have.been.calledOnce;
       expect(barSpy1).to.have.been.calledWith('bar');
 
       expect(barSpy2).to.have.been.calledOnce;
       expect(barSpy2).to.have.been.calledWith('foo');
+
+      // Check a map inside a map
+      store.dispatch({
+        type: 'CHANGE_MAP'
+      });
+
+      expect(fooSpy1).to.have.been.calledTwice;
+      expect(fooSpy1).to.have.been.calledWith('foo was changed');
+
+      expect(fooSpy2).to.have.been.calledOnce;
+      expect(fooSpy2).to.have.been.calledWith('foo');
+
+      expect(barSpy1).to.have.been.calledOnce;
+      expect(barSpy1).to.have.been.calledWith('bar');
+
+      expect(barSpy2).to.have.been.calledOnce;
+      expect(barSpy2).to.have.been.calledWith('foo');
+
+      expect(fooSpy3).to.have.been.calledTwice;
+      expect(fooSpy3).to.have.been.calledWith('map was changed');
+
+      expect(fooSpy4).to.have.been.calledOnce;
     });
 
     it('Should be able to unsubscribe', () => {
