@@ -260,6 +260,81 @@ describe('Store', () => {
       expect(fooSpy4).to.have.been.calledOnce;
     });
 
+    it('should work properly when listeners trigger a new state change', done => {
+
+      const fooState = Map({
+        foo: undefined,
+        bar: undefined
+      });
+
+      const fooReducer = (state, action) => {
+        if (action.type === 'CHANGE_BAR') {
+          state = state.set('bar', 'new bar value');
+        }
+
+        if (action.type === 'CHANGE_FOO') {
+          state = state.set('foo', 'new foo value');
+        }
+        return state || fooState;
+      };
+
+      const initialState = {
+        foo: fooState
+      };
+
+      const rootReducer = combineReducers<any>({
+        foo: fooReducer
+      });
+
+      const store = new AnduxStore(rootReducer, initialState);
+
+      // Foo listener
+      let fooCounter = 0;
+      let fooInitialValue = true;
+      let fooSecondValue = true;
+
+      store.observe('foo.foo').subscribe(newValue => {
+        fooCounter++;
+
+        if (newValue) {
+          fooSecondValue = newValue;
+          store.dispatch({
+            type: 'CHANGE_BAR'
+          });
+        } else {
+          fooInitialValue = newValue;
+        }
+      });
+
+      // Bar listener
+      let barCounter = 0;
+      let barInitialValue = true;
+      let barSecondValue = true;
+
+      store.observe('foo.bar').subscribe(newValue => {
+        barCounter++;
+
+        if (newValue) {
+          barSecondValue = newValue;
+
+          expect(fooInitialValue).to.equal(undefined);
+          expect(fooSecondValue).to.equal('new foo value');
+          expect(fooCounter).to.equal(2);
+
+          expect(barInitialValue).to.equal(undefined);
+          expect(barSecondValue).to.equal('new bar value');
+          expect(barCounter).to.equal(2);
+          done();
+        } else {
+          barInitialValue = newValue;
+        }
+      });
+
+      store.dispatch({
+        type: 'CHANGE_FOO'
+      });
+    });
+
     it('Should be able to unsubscribe', () => {
       const fooState = Map({foo: 'bar', bar: 'foo'});
       const fooReducer = (state, action) => {
@@ -279,13 +354,15 @@ describe('Store', () => {
       });
 
       const store = new AnduxStore(rootReducer, initialState);
-      const observable = store.observe('foo.foo');
+
+      const observableOne = store.observe('foo.foo');
+      const observableTwo = store.observe('foo.foo');
 
       const spyOne = sinon.spy();
       const spyTwo = sinon.spy();
 
-      const subscriptionOne = observable.subscribe(spyOne);
-      const subscriptionTwo = observable.subscribe(spyTwo);
+      const subscriptionOne = observableOne.subscribe(spyOne);
+      const subscriptionTwo = observableTwo.subscribe(spyTwo);
 
       expect(spyOne).to.have.been.calledOnce;
       expect(spyOne).to.have.been.calledWith('bar');

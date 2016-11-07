@@ -5,13 +5,6 @@ import { applyMiddleware, createStore, Middleware, Reducer, Store, compose } fro
 import { Action } from './actions';
 import { loggerMiddleware } from './middlewares';
 
-
-interface pathListener {
-  previousValue: any;
-  listeners: Array<Observable<any>>;
-}
-
-
 export class AnduxStore {
   private store: Store<any>;
   private pathListeners = {};
@@ -60,26 +53,30 @@ export class AnduxStore {
     const subscription = Observable.create((observer: Observer<any>) => {
       const currentValue = this.getValueForPath(path);
 
+      // Register for future changes
+      if (this.pathListeners[path]) {
+        this.pathListeners[path].push({
+          previousValue: currentValue,
+          observer
+        });
+      } else {
+        this.pathListeners[path] = [{
+          previousValue: currentValue,
+          observer
+        }];
+      }
+
+      let indexOfListener = this.pathListeners[path].length - 1;
+
       // Pass the initial value
       observer.next(currentValue);
 
-      // Register for future changes
-      if (this.pathListeners[path]) {
-        this.pathListeners[path].listeners.push(observer);
-      } else {
-        this.pathListeners[path] = {
-          previousValue: currentValue,
-          listeners: [observer]
-        };
-      }
-
       // Unsubscribe/cleanup
       return () => {
-        if (this.pathListeners[path].listeners.length === 1) {
+        if (this.pathListeners[path].length === 1) {
           delete this.pathListeners[path];
         } else {
-          const index = this.pathListeners[path].listeners.indexOf(observer);
-          this.pathListeners[path].listeners.slice(index, 1);
+          this.pathListeners[path].splice(indexOfListener, 1);
         }
       };
     });
@@ -89,19 +86,18 @@ export class AnduxStore {
 
   // Notifies observers if their value in the store has been changed
   private notifyObservers() {
-    for (const key of Object.keys(this.pathListeners)) {
-      if (this.pathListeners.hasOwnProperty(key)) {
-        const currentValue = this.getValueForPath(key);
-        const previousValue = this.pathListeners[key].previousValue;
+    for (const path of Object.keys(this.pathListeners)) {
+      if (this.pathListeners.hasOwnProperty(path)) {
+        for (let i = 0, len = this.pathListeners[path].length; i < len; i++) {
+          const observer = this.pathListeners[path][i].observer;
+          const currentValue = this.getValueForPath(path);
+          const previousValue = this.pathListeners[path][i].previousValue;
 
-        if (currentValue !== previousValue) {
-          const listeners = this.pathListeners[key].listeners;
-          for (let i = 0, len = listeners.length; i < len; i++) {
-            listeners[i].next(currentValue);
-          }
-        };
-
-        this.pathListeners[key].previousValue = currentValue;
+          if (currentValue !== previousValue) {
+            this.pathListeners[path][i].previousValue = currentValue;
+            observer.next(currentValue);
+          };
+        }
       }
     }
   }
