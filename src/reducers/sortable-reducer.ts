@@ -1,4 +1,4 @@
-import { List } from 'immutable';
+import { List, Map } from 'immutable';
 
 import { getReducerClassName } from '../utils';
 import { Transformer, Transformable } from './transformable';
@@ -35,7 +35,11 @@ export function SortableReducer(reducerName: string) {
           let items: List<any>;
 
           items = <List<any>> currentItems.sortBy(item => {
-            return item[currentSortProperty] || item.get(currentSortProperty);
+            if (item[currentSortProperty] !== undefined) {
+              return item[currentSortProperty];
+            } else if (Map.isMap(item) && item.get(currentSortProperty)) {
+              return item.get(currentSortProperty);
+            }
           });
 
           if (currentSortReverse) {
