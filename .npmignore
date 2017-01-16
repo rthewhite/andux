@@ -1,2 +1,7 @@
 node_modules
 coverage
+src
+.editorconfig
+tsconfig.json
+tslint.json
+.npmignore
