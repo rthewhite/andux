@@ -24,6 +24,14 @@ describe('Store', () => {
 
       expect(store.getState()).to.equal(initialState);
     });
+
+    it('Should also provide a shorthand property accessor', () => {
+      const reducer = (state, action) => { return state; };
+      const initialState = Map({ foo: 'bar'});
+      const store = new AnduxStore(reducer, initialState);
+
+      expect(store.state).to.equal(initialState);
+    })
   });
 
   describe('dispatch', () => {

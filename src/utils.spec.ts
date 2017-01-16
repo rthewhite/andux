@@ -4,7 +4,8 @@ import {
   convertMethodNameToActionType,
   convertActionTypeToMethodName,
   getReducerClassName,
-  getActionsClassName
+  getActionsClassName,
+  camelcaseToStoreSelector
 } from './utils';
 
 describe('Utils', () => {
@@ -37,6 +38,12 @@ describe('Utils', () => {
     it('It should return the name off the class without Actions at the end', () => {
       expect(getActionsClassName('FooActions')).to.equal('Foo');
       expect(getActionsClassName('FooBarActions')).to.equal('FooBar');
+    });
+  });
+
+  describe('camelcaseToStoreSelector', () => {
+    it('It should convert camelcase to a store selector', () => {
+      expect(camelcaseToStoreSelector('fooBarText')).to.equal('foo.bar.text');
     });
   });
 });

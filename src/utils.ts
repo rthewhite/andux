@@ -18,3 +18,9 @@ export function getReducerClassName(name: string): string {
 export function getActionsClassName(name: string): string {
   return name.split('Actions')[0];
 }
+
+export function camelcaseToStoreSelector(name: string): string {
+  return name.replace(/([A-Z])/g, function($1) {
+    return '.' + $1.toLowerCase();
+  });
+}
