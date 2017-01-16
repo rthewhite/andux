@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { camelcaseToStoreSelector } from './utils';
 
-export function observe(selector?: string): Function {
+export const observe = function observeDecorator(selector?: string): Function {
   return function(target: any, key: string): void {
 
     function getObservable(): Observable<any> {
@@ -27,4 +27,4 @@ export function observe(selector?: string): Function {
       });
     }
   };
-}
+};
