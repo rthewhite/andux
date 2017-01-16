@@ -17,6 +17,7 @@
     "rxjs": "^5.0.0-beta.12"
   },
   "devDependencies": {
+    "@types/mocha": "^2.2.37",
     "@types/redux-logger": "^2.6.31",
     "@types/redux-thunk": "^2.1.30",
     "@types/sinon": "^1.16.29",
@@ -34,7 +35,8 @@
   },
   "scripts": {
     "build": "tsc --declaration",
-    "test": "mocha --watch --recursive --compilers ts:ts-node/register -R spec src",
-    "test:coverage": "ts-node node_modules/istanbul/lib/cli.js cover -e .ts  -x \"*.d.ts\" -x \"*.spec.ts\" _mocha -- --recursive --compilers ts:ts-node/register -R spec src"
+    "test": "mocha --watch --recursive --compilers ts:ts-node/register,tsx:ts-node/register --project ./ --no-cache -R spec src",
+    "test:coverage": "ts-node node_modules/istanbul/lib/cli.js cover -e .ts  -x \"*.d.ts\" -x \"*.spec.ts\" _mocha -- --recursive --compilers ts:ts-node/register -R spec src",
+    "prepublish": "npm run build"
   }
 }

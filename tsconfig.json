@@ -4,15 +4,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["es6", "dom"],
-    // "mapRoot": "./"
+    "baseUrl": "",
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",
     "sourceMap": true,
-    "target": "es6",
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "target": "es5"
   },
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules"]
 }
