@@ -1,4 +1,5 @@
 [![travis][travis-image]][travis-url]
+[![Coverage Status](https://coveralls.io/repos/rthewhite/andux/badge.svg?branch=master&service=github)](https://coveralls.io/github/rthewhite/andux?branch=master)
 [![npm][npm-image]][npm-url]
 [![downloads][downloads-image]][downloads-url]
 
