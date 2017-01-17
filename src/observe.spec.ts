@@ -66,4 +66,29 @@ describe('Observe', () => {
     const observable = selectTest.myProperty;
     expect(observeSpy).to.be.calledWith('my.property');
   });
+
+  it('Should work with multiple observers', () => {
+    class SelectTest {
+      @observe()
+      public myProperty;
+
+      @observe()
+      public myOtherProperty;
+
+      constructor(private store: any) {}
+    }
+
+    const observeSpy = sinon.spy();
+    const store = {
+      observe: observeSpy
+    };
+
+    const selectTest = new SelectTest(store);
+    const observable = selectTest.myProperty;
+    const observableTwo = selectTest.myOtherProperty;
+
+    expect(observeSpy).to.be.calledTwice;
+    expect(observeSpy).to.be.calledWith('my.property');
+    expect(observeSpy).to.be.calledWith('my.other.property');
+  });
 });
