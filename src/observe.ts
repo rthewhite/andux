@@ -4,9 +4,6 @@ import { camelcaseToStoreSelector } from './utils';
 export function observe(selector?: string): Function {
   return function decorate(target: any, key: string): void {
     let observable: Observable<any>;
-
-    console.log(key);
-
     function getObservable(): Observable<any> {
       if (!observable) {
         // Make sure the store is injected
