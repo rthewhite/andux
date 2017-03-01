@@ -18,7 +18,10 @@ export function observe(selector?: string): Function {
           keySelector = keySelector.substr(0, key.length - 1);
         }
 
-        keySelector = camelcaseToStoreSelector(keySelector);
+        // Should only convert camelcase when using the property key
+        if (!selector && key) {
+          keySelector = camelcaseToStoreSelector(keySelector);
+        }
 
         observable = this.store.observe(keySelector);
       }

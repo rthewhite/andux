@@ -109,4 +109,22 @@ describe('Observe', () => {
     const observable = selectTest.myProperty$;
     expect(observeSpy).to.be.calledWith('my.property');
   });
+
+  it('Should not transform given selector camelCase', () => {
+    class SelectTest {
+      @observe('some.selecTor')
+      public myProperty;
+
+      constructor(private store: any) {}
+    }
+
+    const observeSpy = sinon.spy();
+    const store = {
+      observe: observeSpy
+    };
+
+    const selectTest = new SelectTest(store);
+    const observable = selectTest.myProperty;
+    expect(observeSpy).to.be.calledWith('some.selecTor');
+  })
 });
