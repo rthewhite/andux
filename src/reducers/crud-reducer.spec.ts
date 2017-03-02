@@ -52,12 +52,12 @@ describe('CrudReducer', () => {
         expect(myReducer['loadItemsMySuccess']()).to.equal('foobar');
       });
 
-      it('should set the items and loaded on the state', () => {
+      it('should set items on the state when the response is an array or list', () => {
         const items = List<string>(['foo1', 'foo2']);
 
         let state = Map({});
         const action = {
-          type: 'LOAD_ITEMS_SOME_STARTED',
+          type: 'LOAD_ITEMS_SOME_SUCCESS',
           payload: {
             response: items
           }
@@ -65,6 +65,37 @@ describe('CrudReducer', () => {
 
         state = reducer['loadItemsSomeSuccess'](state, action);
         expect(state.get('items')).to.equal(items);
+      });
+
+      it('should set items on the state when the response contains an results key', () => {
+        const items = List<string>(['foo1', 'foo2']);
+
+        let state = Map({});
+        const action = {
+          type: 'LOAD_ITEMS_SOME_SUCCESS',
+          payload: {
+            response: {
+              results: items
+            }
+          }
+        };
+
+        state = reducer['loadItemsSomeSuccess'](state, action);
+        expect(state.get('items')).to.equal(items);
+      });
+
+      it('should set loaded to true on the state', () => {
+        const items = List<string>(['foo1', 'foo2']);
+
+        let state = Map({});
+        const action = {
+          type: 'LOAD_ITEMS_SOME_SUCCESS',
+          payload: {
+            response: items
+          }
+        };
+
+        state = reducer['loadItemsSomeSuccess'](state, action);
         expect(state.get('loaded')).to.equal(true);
       });
     });
@@ -257,6 +288,138 @@ describe('CrudReducer', () => {
       });
     });
   });
+
+  describe('createItem', () => {
+    describe('createItemStarted', () => {
+      it('should only define a createItemStarted handler if none is present', () => {
+        @CrudReducer('My')
+        class MyReducer extends AnduxReducer {
+          createItemMyStarted() {
+            return 'foobar';
+          }
+        }
+
+        const myReducer = new MyReducer();
+        expect(myReducer['createItemMyStarted']).to.exist;
+        expect(myReducer['createItemMyStarted']()).to.equal('foobar');
+      });
+
+      it('should set creating to true and clear any previous error in the state', () => {
+        let state = Map({ updateError: 'some error'});
+        let action = { type: 'CREATE_ITEM_SOME_STARTED'};
+        state = reducer['createItemSomeStarted'](state, action);
+        expect(state.get('creating')).to.equal(true);
+        expect(state.get('createError')).to.equal(undefined);
+      });
+    });
+
+    describe('createItemSuccess', () => {
+      it('should only define a createItemSuccess handler if none is present', () => {
+        @CrudReducer('My')
+        class MyReducer extends AnduxReducer {
+          createItemMySuccess() {
+            return 'foobar';
+          }
+        }
+
+        const myReducer = new MyReducer();
+        expect(myReducer['createItemMySuccess']).to.exist;
+        expect(myReducer['createItemMySuccess']()).to.equal('foobar');
+      });
+
+      it('should add the item to the state', () => {
+        let state = Map({
+          items: List<any>([
+            Map({
+              uuid: 1,
+              value: 'foobar1'
+            }),
+            Map({
+              uuid: 2,
+              value: 'foobar2'
+            }),
+          ])
+        });
+
+        const item = Map({
+          uuid: 3,
+          value: 'foobar3'
+        });
+
+        const action = {
+          type: 'CREATE_ITEM_SOME_SUCCESS',
+          payload: {
+            response: item
+          }
+        };
+        state = reducer['createItemSomeSuccess'](state, action);
+
+        console.log(state.toJS());
+
+        expect(state.get('items').size).to.equal(3);
+        expect(state.getIn(['items', 0, 'uuid'])).to.equal(1);
+        expect(state.getIn(['items', 0, 'value'])).to.equal('foobar1');
+
+
+        expect(state.getIn(['items', 1, 'uuid'])).to.equal(2);
+        expect(state.getIn(['items', 1, 'value'])).to.equal('foobar2');
+
+        expect(state.getIn(['items', 2, 'uuid'])).to.equal(3);
+        expect(state.getIn(['items', 2, 'value'])).to.equal('foobar3');
+      });
+    });
+
+    describe('updateItemFailed', () => {
+      it('should only define a updateItemFailed handler if none is present', () => {
+        @CrudReducer('My')
+        class MyReducer extends AnduxReducer {
+          updateItemMyFailed() {
+            return 'foobar';
+          }
+        }
+
+        const myReducer = new MyReducer();
+        expect(myReducer['updateItemMyFailed']).to.exist;
+        expect(myReducer['updateItemMyFailed']()).to.equal('foobar');
+      });
+
+      it('should set updateError on the state', () => {
+        let state = Map({});
+        const action = {
+          type: 'UPDATE_ITEM_SOME_FAILED',
+          payload: {
+            response: 'some error'
+          }
+        };
+
+        state = reducer['updateItemSomeFailed'](state, action);
+        expect(state.get('updateError')).to.equal('some error');
+      });
+    });
+
+    describe('updateItemCompleted', () => {
+      it('should only define a updateItemCompleted handler if none is present', () => {
+        @CrudReducer('My')
+        class MyReducer extends AnduxReducer {
+          updateItemMyCompleted() {
+            return 'foobar';
+          }
+        }
+
+        const myReducer = new MyReducer();
+        expect(myReducer['updateItemMyCompleted']).to.exist;
+        expect(myReducer['updateItemMyCompleted']()).to.equal('foobar');
+      });
+
+      it('should set the updating property to false on the state', () => {
+        let state = Map({});
+        const action = { type: 'UPDATE_ITEM_SOME_COMPLETED'};
+        state = reducer['updateItemSomeCompleted'](state, action);
+        expect(state.get('updating')).to.equal(false);
+      });
+    });
+  });
+
 
   describe('updateItem', () => {
     describe('updateItemStarted', () => {

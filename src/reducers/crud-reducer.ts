@@ -23,7 +23,14 @@ export function CrudReducer(reducerName: string) {
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `loadItems${name}Success`)) {
       Object.defineProperty(reducer.prototype, `loadItems${name}Success`, {
         value: function(state, action) {
-          state = state.set('items', action.payload.response);
+          const response = action.payload.response;
+
+          if (response && response.results) {
+            state = state.set('items', response.results);
+          } else {
+            state = state.set('items', response);
+          }
+
           state = state.set('loaded', true);
           return state;
         }
@@ -84,6 +91,47 @@ export function CrudReducer(reducerName: string) {
       });
     }
 
+    // Create
+    const createMethodStarted = `createItem${name}Started`;
+    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, createMethodStarted)) {
+      Object.defineProperty(reducer.prototype, createMethodStarted, {
+        value: function(state, action) {
+          state = state.set('creating', true);
+          state = state.set('createError', undefined);
+          return state;
+        }
+      });
+    }
+
+    const createMethodSuccess = `createItem${name}Success`;
+    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, createMethodSuccess)) {
+      Object.defineProperty(reducer.prototype, createMethodSuccess, {
+        value: function(state, action) {
+          let items = state.get('items');
+          items = insertItem(items, action.payload.response);
+          return state.set('items', items);
+        }
+      });
+    }
+
+    const createMethodFailed = `createItem${name}Failed`;
+    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, createMethodFailed)) {
+      Object.defineProperty(reducer.prototype, createMethodFailed, {
+        value: function(state, action) {
+          return state.set('createError', action.payload.response);
+        }
+      });
+    }
+
+    const createMethodCompleted = `createItem${name}Completed`;
+    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, createMethodCompleted)) {
+      Object.defineProperty(reducer.prototype, createMethodCompleted, {
+        value: function(state, action) {
+          return state.set('creating', false);
+        }
+      });
+    }
+
     // UPDATE
     const updateMethodStarted = `updateItem${name}Started`;
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, updateMethodStarted)) {
@@ -125,7 +173,6 @@ export function CrudReducer(reducerName: string) {
       });
     }
 
-
     // DELETE
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `deleteItem${name}Started`)) {
       Object.defineProperty(reducer.prototype, `deleteItem${name}Started`, {
@@ -166,8 +213,22 @@ export function CrudReducer(reducerName: string) {
 
     function insertItem(items: List<any>, item, uniqueKey = 'uuid') {
       if (items && items.size > 0) {
+
+        let toInsertKey = item[uniqueKey];
+
+        if (typeof item.get === 'function') {
+          toInsertKey = item.get(uniqueKey);
+        }
+
+
         const index = items.findIndex(currentItem => {
-          return currentItem[uniqueKey] === item.uuid;
+          let current = currentItem[uniqueKey];
+
+          if (typeof currentItem.get === 'function') {
+            current = currentItem.get(uniqueKey);
+          }
+
+          return current === toInsertKey;
         });
 
         if (index > -1) {
