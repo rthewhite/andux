@@ -1,20 +1,20 @@
 {
   "name": "andux",
-  "version": "1.1.19",
+  "version": "1.1.20",
   "description": "Glues Redux and Angular 2 together",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/redux-logger": "^2.6.31",
+    "@types/redux-logger": "^2.6.34",
     "@types/redux-thunk": "^2.1.30",
     "core-js": "^2.4.1",
     "immutable": "^3.8.1",
     "redux": "^3.6.0",
-    "redux-logger": "^2.6.1",
-    "redux-thunk": "^2.1.0",
-    "rxjs": "^5.0.3"
+    "redux-logger": "^2.8.2",
+    "redux-thunk": "^2.2.0",
+    "rxjs": "^5.2.0"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.37",
