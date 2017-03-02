@@ -36,9 +36,10 @@
   },
   "scripts": {
     "build": "tsc --declaration",
-    "test": "mocha --watch --recursive --compilers ts:ts-node/register,tsx:ts-node/register -R spec src",
+    "dev": "mocha --watch --recursive --compilers ts:ts-node/register,tsx:ts-node/register -R spec src",
+    "test": "mocha --recursive --compilers ts:ts-node/register,tsx:ts-node/register -R spec src",
     "test:coverage": "ts-node node_modules/istanbul/lib/cli.js cover -e .ts  -x \"*.d.ts\" -x \"*.spec.ts\" _mocha -- --recursive --compilers ts:ts-node/register,tsx:ts-node/register -R spec src",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "prepublish": "npm run build"
+    "prepublish": "npm run test && npm run build"
   }
 }
