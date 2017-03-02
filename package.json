@@ -1,6 +1,6 @@
 {
   "name": "andux",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "Glues Redux and Angular 2 together",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
