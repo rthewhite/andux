@@ -1,11 +1,12 @@
-import { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { camelcaseToStoreSelector } from './utils';
 
 export function observe(selector?: string): Function {
   return function decorate(target: any, key: string): void {
-    let observable: Observable<any>;
-    function getObservable(): Observable<any> {
-      if (!observable) {
+    let subject: BehaviorSubject<any>;
+
+    function getSubject(): BehaviorSubject<any> {
+      if (!subject) {
         // Make sure the store is injected
         if (!this.store) {
           throw new Error('Observe decorator can only be used if the store is injected');
@@ -23,16 +24,16 @@ export function observe(selector?: string): Function {
           keySelector = camelcaseToStoreSelector(keySelector);
         }
 
-        observable = this.store.observe(keySelector);
+        subject = this.store.observe(keySelector);
       }
 
-      return observable;
+      return subject;
     }
 
     // Replace the property with getter function
     if (delete target[key]) {
       Object.defineProperty(target, key, {
-        get: getObservable,
+        get: getSubject,
         enumerable: true,
         configurable: true
       });

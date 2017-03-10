@@ -1,5 +1,6 @@
 import thunk from 'redux-thunk';
 import { Observer, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { applyMiddleware, createStore, Middleware, Reducer, Store, compose } from 'redux';
 
 import { Action } from './actions';
@@ -49,54 +50,51 @@ export class AnduxStore {
 
   // Returns an observable that notifies on changes for
   // the given path
-  observe(path: string): Observable<any> {
-    const subscription = Observable.create((observer: Observer<any>) => {
-      const currentValue = this.getValueForPath(path);
+  observe(path: string): BehaviorSubject<any> {
+    const currentValue = this.getValueForPath(path);
+    const subject = new BehaviorSubject(currentValue);
 
-      // Register for future changes
-      if (this.pathListeners[path]) {
-        this.pathListeners[path].push({
-          previousValue: currentValue,
-          observer
-        });
-      } else {
-        this.pathListeners[path] = [{
-          previousValue: currentValue,
-          observer
-        }];
-      }
+    // Register for future changes
+    if (this.pathListeners[path]) {
+      this.pathListeners[path].push({
+        previousValue: currentValue,
+        subject
+      });
+    } else {
+      this.pathListeners[path] = [{
+        previousValue: currentValue,
+        subject
+      }];
+    }
 
-      let indexOfListener = this.pathListeners[path].length - 1;
-
-      // Pass the initial value
-      observer.next(currentValue);
-
-      // Unsubscribe/cleanup
-      return () => {
-        if (this.pathListeners[path].length === 1) {
-          delete this.pathListeners[path];
-        } else {
-          this.pathListeners[path].splice(indexOfListener, 1);
-        }
-      };
-    });
-
-    return subscription;
+    return subject;
   }
 
   // Notifies observers if their value in the store has been changed
   private notifyObservers() {
     for (const path of Object.keys(this.pathListeners)) {
       if (this.pathListeners.hasOwnProperty(path)) {
-        for (let i = 0, len = this.pathListeners[path].length; i < len; i++) {
-          const observer = this.pathListeners[path][i].observer;
-          const currentValue = this.getValueForPath(path);
-          const previousValue = this.pathListeners[path][i].previousValue;
+        // Loop backwards so we can safely remove items when they have no
+        // more observers
+        for (let i = this.pathListeners[path].length - 1; i >= 0; i--) {
+          const subject: BehaviorSubject<any> = this.pathListeners[path][i].subject;
 
-          if (currentValue !== previousValue) {
-            this.pathListeners[path][i].previousValue = currentValue;
-            observer.next(currentValue);
-          };
+          // Check if there are any observers, otherwise clean up
+          if (subject.observers.length > 0) {
+            const currentValue = this.getValueForPath(path);
+            const previousValue = this.pathListeners[path][i].previousValue;
+
+            if (currentValue !== previousValue) {
+              this.pathListeners[path][i].previousValue = currentValue;
+              subject.next(currentValue);
+            };
+          } else {
+            if (this.pathListeners[path].length === 1) {
+              delete this.pathListeners[path];
+            } else {
+              this.pathListeners[path].splice(i, 1);
+            }
+          }
         }
       }
     }
