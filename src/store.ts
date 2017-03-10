@@ -8,7 +8,7 @@ import { loggerMiddleware } from './middlewares';
 
 export class AnduxStore {
   private store: Store<any>;
-  private pathListeners = {};
+  private subjects = {};
 
   constructor(
     rootReducer: Reducer<Function>,
@@ -51,50 +51,27 @@ export class AnduxStore {
   // Returns an observable that notifies on changes for
   // the given path
   observe(path: string): BehaviorSubject<any> {
-    const currentValue = this.getValueForPath(path);
-    const subject = new BehaviorSubject(currentValue);
+    if (!this.subjects[path]) {
+      const currentValue = this.getValueForPath(path);
+      const subject = new BehaviorSubject(currentValue);
 
-    // Register for future changes
-    if (this.pathListeners[path]) {
-      this.pathListeners[path].push({
-        previousValue: currentValue,
-        subject
-      });
-    } else {
-      this.pathListeners[path] = [{
-        previousValue: currentValue,
-        subject
-      }];
+      this.subjects[path] = subject;
     }
 
-    return subject;
+    return this.subjects[path];
   }
 
   // Notifies observers if their value in the store has been changed
   private notifyObservers() {
-    for (const path of Object.keys(this.pathListeners)) {
-      if (this.pathListeners.hasOwnProperty(path)) {
-        // Loop backwards so we can safely remove items when they have no
-        // more observers
-        for (let i = this.pathListeners[path].length - 1; i >= 0; i--) {
-          const subject: BehaviorSubject<any> = this.pathListeners[path][i].subject;
+    for (const path of Object.keys(this.subjects)) {
+      const subject: BehaviorSubject<any> = this.subjects[path];
 
-          // Check if there are any observers, otherwise clean up
-          if (subject.observers.length > 0) {
-            const currentValue = this.getValueForPath(path);
-            const previousValue = this.pathListeners[path][i].previousValue;
+      if (subject.observers.length > 0) {
+        const previousValue = subject.getValue();
+        const currentValue = this.getValueForPath(path);
 
-            if (currentValue !== previousValue) {
-              this.pathListeners[path][i].previousValue = currentValue;
-              subject.next(currentValue);
-            };
-          } else {
-            if (this.pathListeners[path].length === 1) {
-              delete this.pathListeners[path];
-            } else {
-              this.pathListeners[path].splice(i, 1);
-            }
-          }
+        if (currentValue !== previousValue) {
+          subject.next(currentValue);
         }
       }
     }
