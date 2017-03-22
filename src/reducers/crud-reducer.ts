@@ -32,6 +32,7 @@ export function CrudReducer(reducerName: string) {
           }
 
           state = state.set('loaded', true);
+          state = state.set('loading', false);
           return state;
         }
       });
@@ -40,15 +41,8 @@ export function CrudReducer(reducerName: string) {
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `loadItems${name}Failed`)) {
       Object.defineProperty(reducer.prototype, `loadItems${name}Failed`, {
         value: function(state, action) {
+          state = state.set('loading', false);
           return state.set('loadError', action.payload.response);
-        }
-      });
-    }
-
-    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `loadItems${name}Completed`)) {
-      Object.defineProperty(reducer.prototype, `loadItems${name}Completed`, {
-        value: function(state, action) {
-          return state.set('loading', false);
         }
       });
     }
@@ -70,6 +64,7 @@ export function CrudReducer(reducerName: string) {
           let items = state.get('items');
           items = insertItem(items, action.payload.response);
           state = state.set('items', items);
+          state = state.set('loading', false);
           return state;
         }
       });
@@ -78,15 +73,8 @@ export function CrudReducer(reducerName: string) {
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `getItem${name}Failed`)) {
       Object.defineProperty(reducer.prototype, `getItem${name}Failed`, {
         value: function(state, action) {
+          state = state.set('loading', false);
           return state.set('getError', action.payload.response);
-        }
-      });
-    }
-
-    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `getItem${name}Completed`)) {
-      Object.defineProperty(reducer.prototype, `getItem${name}Completed`, {
-        value: function(state, action) {
-          return state.set('loading', false);
         }
       });
     }
@@ -109,6 +97,7 @@ export function CrudReducer(reducerName: string) {
         value: function(state, action) {
           let items = state.get('items');
           items = insertItem(items, action.payload.response);
+          state = state.set('creating', false);
           return state.set('items', items);
         }
       });
@@ -118,16 +107,8 @@ export function CrudReducer(reducerName: string) {
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, createMethodFailed)) {
       Object.defineProperty(reducer.prototype, createMethodFailed, {
         value: function(state, action) {
+          state = state.set('creating', false);
           return state.set('createError', action.payload.response);
-        }
-      });
-    }
-
-    const createMethodCompleted = `createItem${name}Completed`;
-    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, createMethodCompleted)) {
-      Object.defineProperty(reducer.prototype, createMethodCompleted, {
-        value: function(state, action) {
-          return state.set('creating', false);
         }
       });
     }
@@ -150,6 +131,7 @@ export function CrudReducer(reducerName: string) {
         value: function(state, action) {
           let items = state.get('items');
           items = insertItem(items, action.payload.response);
+          state = state.set('updating', false);
           return state.set('items', items);
         }
       });
@@ -159,19 +141,12 @@ export function CrudReducer(reducerName: string) {
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, updateMethodFailed)) {
       Object.defineProperty(reducer.prototype, updateMethodFailed, {
         value: function(state, action) {
+          state = state.set('updating', false);
           return state.set('updateError', action.payload.response);
         }
       });
     }
 
-    const updateMethodCompleted = `updateItem${name}Completed`;
-    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, updateMethodCompleted)) {
-      Object.defineProperty(reducer.prototype, updateMethodCompleted, {
-        value: function(state, action) {
-          return state.set('updating', false);
-        }
-      });
-    }
 
     // DELETE
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `deleteItem${name}Started`)) {
@@ -189,6 +164,7 @@ export function CrudReducer(reducerName: string) {
         value: function(state, action) {
           let items = state.get('items');
           items = removeItem(items, action.payload.request);
+          state = state.set('deleting', false);
           return state.set('items', items);
         }
       });
@@ -197,16 +173,8 @@ export function CrudReducer(reducerName: string) {
     if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `deleteItem${name}Failed`)) {
       Object.defineProperty(reducer.prototype, `deleteItem${name}Failed`, {
         value: function(state, action) {
-          return state.set('deleteError', action.payload.response);
-        }
-      });
-    }
-
-    if (!Reflect.getOwnPropertyDescriptor(reducer.prototype, `deleteItem${name}Completed`)) {
-      Object.defineProperty(reducer.prototype, `deleteItem${name}Completed`, {
-        value: function(state, action) {
           state = state.set('deleting', false);
-          return state;
+          return state.set('deleteError', action.payload.response);
         }
       });
     }

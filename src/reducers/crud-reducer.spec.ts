@@ -97,32 +97,6 @@ describe('CrudReducer', () => {
 
         state = reducer['loadItemsSomeSuccess'](state, action);
         expect(state.get('loaded')).to.equal(true);
-      });
-    });
-
-    describe('loadItemsCompleted', () => {
-      it('should only define a loadItemsCompleted handler if none is present', () => {
-        @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
-          loadItemsMyCompleted() {
-            return 'foobar';
-          }
-        }
-
-        const myReducer = new MyReducer();
-        expect(myReducer['loadItemsMyCompleted']).to.exist;
-        expect(myReducer['loadItemsMyCompleted']()).to.equal('foobar');
-      });
-
-
-      it('should set loading to false on the state', () => {
-        let state = Map({});
-        const action = {
-          type: 'LOAD_ITEMS_SOME_COMPLETED',
-          payload: {}
-        };
-
-        state = reducer['loadItemsSomeCompleted'](state, action);
         expect(state.get('loading')).to.equal(false);
       });
     });
@@ -262,32 +236,10 @@ describe('CrudReducer', () => {
         let state = Map({});
         let action = { type: 'GET_ITEM_SOME_FAILED', payload: { response: 'some error' }};
         state = reducer['getItemSomeFailed'](state, action);
+        expect(state.get('loading')).to.equal(false);
         expect(state.get('getError')).to.equal('some error');
       });
     });
-
-    describe('getItemCompleted', () => {
-      it('should define a getItemCompleted handler if none is present', () => {
-        @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
-          getItemMyCompleted() {
-            return 'foobar';
-          }
-        }
-
-        const myReducer = new MyReducer();
-        expect(myReducer['getItemMyCompleted']).to.exist;
-        expect(myReducer['getItemMyCompleted']()).to.equal('foobar');
-      });
-
-      it('should set the loading state to false', () => {
-        let state = Map({});
-        let action = { type: 'GET_ITEM_SOME_COMPLETED', payload: {} };
-        state = reducer['getItemSomeCompleted'](state, action);
-        expect(state.get('loading')).to.equal(false);
-      });
-    });
-  });
 
   describe('createItem', () => {
     describe('createItemStarted', () => {
@@ -354,7 +306,7 @@ describe('CrudReducer', () => {
         };
         state = reducer['createItemSomeSuccess'](state, action);
 
-        console.log(state.toJS());
+        expect(state.get('creating')).to.equal(false);
 
         expect(state.get('items').size).to.equal(3);
         expect(state.getIn(['items', 0, 'uuid'])).to.equal(1);
@@ -394,27 +346,6 @@ describe('CrudReducer', () => {
 
         state = reducer['updateItemSomeFailed'](state, action);
         expect(state.get('updateError')).to.equal('some error');
-      });
-    });
-
-    describe('updateItemCompleted', () => {
-      it('should only define a updateItemCompleted handler if none is present', () => {
-        @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
-          updateItemMyCompleted() {
-            return 'foobar';
-          }
-        }
-
-        const myReducer = new MyReducer();
-        expect(myReducer['updateItemMyCompleted']).to.exist;
-        expect(myReducer['updateItemMyCompleted']()).to.equal('foobar');
-      });
-
-      it('should set the updating property to false on the state', () => {
-        let state = Map({});
-        const action = { type: 'UPDATE_ITEM_SOME_COMPLETED'};
-        state = reducer['updateItemSomeCompleted'](state, action);
         expect(state.get('updating')).to.equal(false);
       });
     });
@@ -486,6 +417,7 @@ describe('CrudReducer', () => {
         state = reducer['updateItemSomeSuccess'](state, action);
 
         expect(state.get('items').size).to.equal(2);
+        expect(state.get('updating')).to.equal(false);
         expect(state.getIn(['items', 0, 'value'])).to.equal('not foobar anymore');
         expect(state.getIn(['items', 0, 'uuid'])).to.equal(1);
         expect(state.getIn(['items', 1, 'value'])).to.equal('foobar2');
@@ -518,27 +450,6 @@ describe('CrudReducer', () => {
 
         state = reducer['updateItemSomeFailed'](state, action);
         expect(state.get('updateError')).to.equal('some error');
-      });
-    });
-
-    describe('updateItemCompleted', () => {
-      it('should only define a updateItemCompleted handler if none is present', () => {
-        @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
-          updateItemMyCompleted() {
-            return 'foobar';
-          }
-        }
-
-        const myReducer = new MyReducer();
-        expect(myReducer['updateItemMyCompleted']).to.exist;
-        expect(myReducer['updateItemMyCompleted']()).to.equal('foobar');
-      });
-
-      it('should set the updating property to false on the state', () => {
-        let state = Map({});
-        const action = { type: 'UPDATE_ITEM_SOME_COMPLETED'};
-        state = reducer['updateItemSomeCompleted'](state, action);
         expect(state.get('updating')).to.equal(false);
       });
     });
@@ -635,30 +546,10 @@ describe('CrudReducer', () => {
         let state = Map({});
         let action = { type: 'DELETE_ITEM_SOME_FAILED', payload: { response: 'some error'}};
         state = reducer['deleteItemSomeFailed'](state, action);
+        expect(state.get('deleting')).to.equal(false);
         expect(state.get('deleteError')).to.equal('some error');
       });
     });
-
-    describe('deletingItemCompleted', () => {
-      it('should only define a deleteItemCompleted handler if none is present', () => {
-        @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
-          deleteItemMyCompleted() {
-            return 'foobar';
-          }
-        }
-
-        const myReducer = new MyReducer();
-        expect(myReducer['deleteItemMyCompleted']).to.exist;
-        expect(myReducer['deleteItemMyCompleted']()).to.equal('foobar');
-      });
-
-      it('should set deleting to false on the state', () => {
-        let state = Map({});
-        let action = { type: 'DELETE_ITEM_SOME_COMPLETED'};
-        state = reducer['deleteItemSomeCompleted'](state, action);
-        expect(state.get('deleting')).to.equal(false);
-      });
     });
   });
 });
