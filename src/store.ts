@@ -65,14 +65,11 @@ export class AnduxStore {
   private notifyObservers() {
     for (const path of Object.keys(this.subjects)) {
       const subject: BehaviorSubject<any> = this.subjects[path];
+      const previousValue = subject.getValue();
+      const currentValue = this.getValueForPath(path);
 
-      if (subject.observers.length > 0) {
-        const previousValue = subject.getValue();
-        const currentValue = this.getValueForPath(path);
-
-        if (currentValue !== previousValue) {
-          subject.next(currentValue);
-        }
+      if (currentValue !== previousValue) {
+        subject.next(currentValue);
       }
     }
   }
