@@ -22,7 +22,7 @@ export class AnduxStore {
     // Lets get the data needed from the reducers and create the initialState
     for (const key in reducers) {
       if (reducers.hasOwnProperty(key)) {
-        const reducer: AnduxReducer = new reducers[key]();
+        const reducer = new reducers[key]();
 
         // Reducer must have a key
         if (!reducer.key) {
