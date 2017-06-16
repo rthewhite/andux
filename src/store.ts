@@ -1,7 +1,8 @@
+import { AnduxReducer } from './reducers/reducer';
 import thunk from 'redux-thunk';
 import { Observer, Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { applyMiddleware, createStore, Middleware, Reducer, Store, compose } from 'redux';
+import { applyMiddleware, createStore, Middleware, Reducer, Store, compose, combineReducers } from 'redux';
 
 import { Action } from './actions';
 import { loggerMiddleware } from './middlewares';
@@ -11,12 +12,37 @@ export class AnduxStore {
   private subjects = {};
 
   constructor(
-    rootReducer: Reducer<Function>,
-    initialState: any,
+    reducers: any,
     middlewares: Array<Middleware> = [],
     enableDebugging = false
   ) {
+    const initialState = {};
+    const reducerMethods = {};
 
+    // Lets get the data needed from the reducers and create the initialState
+    for (const key in reducers) {
+      if (reducers.hasOwnProperty(key)) {
+        const reducer: AnduxReducer = new reducers[key]();
+
+        // Reducer must have a key
+        if (!reducer.key) {
+          throw new Error('[andux] Missing key on reducer');
+        }
+
+        // Reducer must have a initialState
+        if (!reducer.initialState) {
+          throw new Error('[andux] Missing initialState on reducer');
+        }
+
+        initialState[reducer.key] = reducer.initialState;
+        reducerMethods[reducer.key] = reducer['reduce'];
+      }
+    }
+
+    // Let's create the root reducer
+    const rootReducer = combineReducers(reducerMethods);
+
+    // Setup the ReduxStore
     if (enableDebugging) {
       this.store = createStore(rootReducer, initialState, compose(
         applyMiddleware(...middlewares, thunk, loggerMiddleware),

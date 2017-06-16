@@ -4,6 +4,7 @@ import { convertActionTypeToMethodName } from '../utils';
 
 export class AnduxReducer {
   public initialState: any;
+  public key: string;
 
   constructor() {
     // Reduce method losed scope when passed to redux
@@ -22,11 +23,6 @@ Object.defineProperty(AnduxReducer.prototype, `reduce`, {
       if (this[methodName]) {
         state = this[methodName](state, action);
       }
-    }
-
-    // No state and no initialState, we got a problem
-    if (!state && !this.initialState) {
-      throw new Error('Reducer doesnt have an initialState');
     }
 
     // If we are doing nothing, return the state or initialState if no state is given

@@ -1,3 +1,4 @@
+import { AnduxReducer } from './reducers/reducer';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as sinonChai  from 'sinon-chai';
@@ -6,71 +7,87 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 import { Map, List } from 'immutable';
-import { combineReducers } from 'redux';
-import { Observable } from 'rxjs';
+// import { combineReducers } from 'redux';
+import { Observable } from 'rxjs/Observable';
 import { AnduxStore } from './store';
 
+class ReducerOne extends AnduxReducer {
+  public key = 'reducerOne';
+  public initialState = Map({
+    test: 'foobar1'
+  });
+}
+
+class ReducerTwo extends AnduxReducer {
+  public key = 'reducerTwo';
+  public initialState = Map({
+    test: 'foobar2'
+  });
+}
+
+const reducers = {
+  reducerOne: ReducerOne,
+  reducerTwo: ReducerTwo
+};
+
+
 describe('Store', () => {
-  describe('getState', () => {
-    it('Store should have a getState method', () => {
-      const store = new AnduxStore((state, action) => { return state; }, {});
-      expect(store.getState).exist;
+  describe('constructor', () => {
+    it('Should initialize reducers and initialState successfully', () => {
+      const store = new AnduxStore(reducers, [], false);
+
+      expect(store.getState().reducerOne).exist;
+      expect(store.getState().reducerTwo).exist;
+
+      expect(store.getState().reducerOne.get('test')).to.equal('foobar1');
+      expect(store.getState().reducerTwo.get('test')).to.equal('foobar2');
     });
-
-    it('Calling getState should return the state', () => {
-      const reducer = (state, action) => { return state; };
-      const initialState = Map({ foo: 'bar'});
-      const store = new AnduxStore(reducer, initialState);
-
-      expect(store.getState()).to.equal(initialState);
-    });
-
-    it('Should also provide a shorthand property accessor', () => {
-      const reducer = (state, action) => { return state; };
-      const initialState = Map({ foo: 'bar'});
-      const store = new AnduxStore(reducer, initialState);
-
-      expect(store.state).to.equal(initialState);
-    })
   });
 
   describe('dispatch', () => {
     it('Store should have a dispatch method', () => {
-      const store = new AnduxStore((state, action) => { return state; }, {});
+      const store = new AnduxStore(reducers, []);
       expect(store.dispatch).to.exist;
     });
 
     it('Calling dispatch should dispatch the given action to the reducer', () => {
       let reducerCalled = false;
-      const actionType = 'CHANGE_FOO';
 
-      const reducer = (state, action) => {
-        if (action.type === actionType) {
+      class TestReducer extends AnduxReducer {
+        public key = 'test';
+        public initialState = Map({
+          foo: 'bar'
+        });
+
+        changeFoo(state, action) {
           reducerCalled = true;
-          state = state.set('foo', 'foo');
+          return state.set('foo', 'foo');
         }
-        return state;
-      };
-      const initialState = Map({ foo: 'bar'});
-      const store = new AnduxStore(reducer, initialState);
+      }
 
-      expect(store.getState().get('foo')).to.equal('bar');
+      const store = new AnduxStore({
+        test: TestReducer
+      });
 
-      store.dispatch({type: actionType});
+      expect(store.getState().test.get('foo')).to.equal('bar');
+
+      store.dispatch({
+        type: 'CHANGE_FOO'
+      });
 
       expect(reducerCalled).to.equal(true);
-      expect(store.getState().get('foo')).to.equal('foo');
+      expect(store.getState().test.get('foo')).to.equal('foo');
     });
   });
 
   describe('subscribe', () => {
     it('Store should have an subscribe method', () => {
-      const store = new AnduxStore((state, action) => { return state; }, {});
+      const store = new AnduxStore(reducers);
       expect(store.subscribe).to.exist;
     });
 
     it('Subscribers should be notified of any change in the store', () => {
-      const store = new AnduxStore((state, action) => { return state; }, {});
+      const store = new AnduxStore(reducers);
       const spy = sinon.spy();
 
       store.subscribe(spy);
@@ -84,7 +101,7 @@ describe('Store', () => {
     });
 
     it('Subscribe should return an unsubscribe function', () => {
-      const store = new AnduxStore((state, action) => { return state; }, {});
+      const store = new AnduxStore(reducers);
       const spy = sinon.spy();
 
       const unsubscribe = store.subscribe(spy);
@@ -102,42 +119,20 @@ describe('Store', () => {
 
   describe('observe', () => {
     it('Store should have an observe method', () => {
-      const store = new AnduxStore((state, action) => { return state; }, {});
+      const store = new AnduxStore(reducers);
       expect(store.observe).to.exist;
     });
 
     it('Observe should return an observable', () => {
-      const fooState = Map({foo: 'bar'});
-      const fooReducer = (state, action) => { return state || fooState ; };
-
-      const initialState = {
-        foo: fooState
-      };
-
-      const rootReducer = combineReducers<any>({
-        foo: fooReducer
-      });
-
-      const store = new AnduxStore(rootReducer, initialState);
-      const observable = store.observe('foo.bar');
+      const store = new AnduxStore(reducers);
+      const observable = store.observe('reducerOne.test');
 
       expect(observable instanceof Observable).to.equal(true);
     });
 
     it('Observable should return the initial value when starting to observe', () => {
-      const fooState = Map({foo: 'bar'});
-      const fooReducer = (state, action) => { return state || fooState ; };
-
-      const initialState = {
-        foo: fooState
-      };
-
-      const rootReducer = combineReducers<any>({
-        foo: fooReducer
-      });
-
-      const store = new AnduxStore(rootReducer, initialState);
-      const observable = store.observe('foo.foo');
+      const store = new AnduxStore(reducers);
+      const observable = store.observe('reducerOne.test');
 
       let result;
 
@@ -145,49 +140,42 @@ describe('Store', () => {
         result = foo;
       });
 
-      expect(result).to.equal('bar');
+      expect(result).to.equal('foobar1');
     });
 
     it('Observable should only trigger when the observed value changes', () => {
-      const fooState = Map({
-        foo: 'bar',
-        bar: 'foo',
-        map: Map({
+      class FooReducer extends AnduxReducer {
+        public key = 'foo';
+        public initialState = Map({
           foo: 'bar',
-          list: List<any>([])
-        })
-      });
+          bar: 'foo',
+          map: Map({
+            foo: 'bar',
+            list: List<any>([])
+          })
+        });
 
-      const fooReducer = (state, action) => {
-        if (action.type === 'CHANGE_FOO') {
-          state = state.set('foo', 'foo was changed');
-        } else if (action.type === 'CHANGE_MAP') {
-          state = state.setIn(['map', 'foo'], 'map was changed');
+        changeFoo(state, action) {
+          return state.set('foo', 'foo was changed');
         }
 
-        return state || fooState;
-      };
+        changeMap(state, action) {
+          return state.setIn(['map', 'foo'], 'map was changed');
+        }
+      }
 
-      const barState = Map({
-        foo: 'bar',
-        bar: 'foo'
+      class BarReducer extends AnduxReducer {
+        public key = 'bar';
+        public initialState = Map({
+          foo: 'bar',
+          bar: 'foo'
+        });
+      }
+
+      const store = new AnduxStore({
+        foo: FooReducer,
+        bar: BarReducer
       });
-
-      const barReducer = (state, action) => {
-        return state || barState;
-      };
-
-      const initialState = {
-        foo: fooState,
-        bar: barState
-      };
-
-      const rootReducer = combineReducers<any>({
-        foo: fooReducer,
-        bar: barReducer
-      });
-
-      const store = new AnduxStore(rootReducer, initialState);
 
       const fooSpy1 = sinon.spy();
       const fooSpy2 = sinon.spy();
@@ -270,31 +258,25 @@ describe('Store', () => {
 
     it('should work properly when listeners trigger a new state change', done => {
 
-      const fooState = Map({
-        foo: undefined,
-        bar: undefined
-      });
+      class FooReducer extends AnduxReducer {
+        public key = 'foo';
+        public initialState = Map({
+          foo: undefined,
+          bar: undefined
+        });
 
-      const fooReducer = (state, action) => {
-        if (action.type === 'CHANGE_BAR') {
-          state = state.set('bar', 'new bar value');
+        changeBar(state, action) {
+          return state.set('bar', 'new bar value');
         }
 
-        if (action.type === 'CHANGE_FOO') {
-          state = state.set('foo', 'new foo value');
+        changeFoo(state, action) {
+          return state.set('foo', 'new foo value');
         }
-        return state || fooState;
-      };
+      }
 
-      const initialState = {
-        foo: fooState
-      };
-
-      const rootReducer = combineReducers<any>({
-        foo: fooReducer
+      const store = new AnduxStore({
+        foo: FooReducer
       });
-
-      const store = new AnduxStore(rootReducer, initialState);
 
       // Foo listener
       let fooCounter = 0;
@@ -344,24 +326,21 @@ describe('Store', () => {
     });
 
     it('Should be able to unsubscribe', () => {
-      const fooState = Map({foo: 'bar', bar: 'foo'});
-      const fooReducer = (state, action) => {
-        if (action.type === 'CHANGE_FOO') {
-          state = state.set('foo', action.payload);
+      class FooReducer extends AnduxReducer {
+        public key = 'foo';
+        public initialState = Map({
+          foo: 'bar',
+          bar: 'foo'
+        });
+
+        changeFoo(state, action) {
+          return state.set('foo', action.payload);
         }
+      }
 
-        return state || fooState;
-      };
-
-      const initialState = {
-        foo: fooState
-      };
-
-      const rootReducer = combineReducers<any>({
-        foo: fooReducer
+      const store = new AnduxStore({
+        foo: FooReducer
       });
-
-      const store = new AnduxStore(rootReducer, initialState);
 
       const observableOne = store.observe('foo.foo');
       const observableTwo = store.observe('foo.foo');

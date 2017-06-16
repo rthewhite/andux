@@ -6,7 +6,8 @@ import { AnduxReducer } from './reducer';
 describe('Reducer', () => {
   it('should properly construct', () => {
     class MyReducer extends AnduxReducer {
-      initialState = 'foobar';
+      public key = 'foobar';
+      public initialState = 'foobar';
     }
 
     const reducer = new MyReducer();
@@ -23,18 +24,6 @@ describe('Reducer', () => {
       const reducer = new MyReducer();
       const result = reducer['reduce'](undefined, { type: 'SOME_ACTION'});
       expect(result).to.equal('foobar');
-    });
-
-    it('should throw an error when no state is passed and no initialState is set', () => {
-      class MyReducer extends AnduxReducer {}
-
-      const reducer = new MyReducer();
-
-      function reduce() {
-        reducer['reduce'](undefined, { type: 'SOME_ACTION'});
-      }
-
-      expect(reduce).to.throw('Reducer doesnt have an initialState');
     });
 
     it('should call the appropriate method on the class based on the actionType', () => {
