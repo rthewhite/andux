@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { camelcaseToStoreSelector } from './utils';
 
-const ObserveDecorator = function (selector?: string): Function {
+export function observe(selector?: string): Function {
   return function decorate(target: any, key: string): void {
     let subject: BehaviorSubject<any>;
 
@@ -40,6 +40,3 @@ const ObserveDecorator = function (selector?: string): Function {
     }
   };
 };
-
-export const observe = ObserveDecorator;
-export const Observe = ObserveDecorator;

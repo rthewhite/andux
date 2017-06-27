@@ -5,7 +5,7 @@ import * as sinonChai  from 'sinon-chai';
 const expect = chai.expect;
 chai.use(sinonChai);
 
-import { observe, Observe } from './observe';
+import { observe } from './observe';
 
 describe('Observe', () => {
   it('Should thrown an error if no store is available on the component', () => {
@@ -126,25 +126,5 @@ describe('Observe', () => {
     const selectTest = new SelectTest(store);
     const observable = selectTest.myProperty;
     expect(observeSpy).to.be.calledWith('some.selecTor');
-  });
-
-  it('Should also export observe as Observe', () => {
-    class SelectTest {
-      @Observe('foobar')
-      public myProperty;
-
-      constructor(private store: any) {
-        this.store = store;
-      }
-    }
-
-    const observeSpy = sinon.spy();
-    const store = {
-      observe: observeSpy
-    };
-
-    const selectTest = new SelectTest(store);
-    const observable = selectTest.myProperty;
-    expect(observeSpy).to.be.calledWith('foobar');
-  });
+  })
 });
