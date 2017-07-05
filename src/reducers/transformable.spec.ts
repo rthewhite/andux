@@ -32,7 +32,7 @@ describe('Transformer', () => {
       const spy = sinon.spy();
       const transformer = new Transformer('foo', spy, 50);
 
-      transformer.transform(undefined);
+      transformer.transform(undefined, {type: 'FOOBAR'});
       expect(spy).to.not.have.been.called;
     });
 
@@ -43,7 +43,7 @@ describe('Transformer', () => {
         return state.set('foo', 'not bar');
       }, 50);
 
-      const state = transformer.transform(initialState);
+      const state = transformer.transform(initialState, {type: 'FOOBAR'});
       expect(state.get('foo')).to.equal('not bar');
     });
 
@@ -54,7 +54,7 @@ describe('Transformer', () => {
       }, 50);
 
       const test = () => {
-        transformer.transform(initialState);
+        transformer.transform(initialState, {type: 'FOOBAR'});
       };
 
       expect(test).to.throw(`Transformer: foo doesn't return the state in it's transform method`);
