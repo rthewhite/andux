@@ -65,7 +65,10 @@ describe('Transformer', () => {
 describe('Transformable', () => {
   it('should have transform, addTransformer, removeTransformer methods', () => {
     @Transformable
-    class MyReducer extends AnduxReducer {}
+    class MyReducer implements AnduxReducer {
+      public key = 'foobar';
+      public initialState = {};
+    }
 
     const reducer = new MyReducer();
     expect(reducer['addTransformer']).to.exist;
@@ -156,7 +159,10 @@ describe('Transformable', () => {
 
       @myDecorator()
       @myOtherDecorator()
-      class MyReducer {}
+      class MyReducer implements AnduxReducer {
+        public key = 'foobar';
+        public initialState = 'foobar';
+      }
 
       const reducer = new MyReducer();
       expect(reducer['transformers'].length).to.equal(2);

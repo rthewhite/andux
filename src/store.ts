@@ -3,6 +3,7 @@ import thunk from 'redux-thunk';
 import { Observer, Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { applyMiddleware, createStore, Middleware, Reducer, Store, compose, combineReducers } from 'redux';
+import { convertActionTypeToMethodName } from './utils';
 
 import { Action } from './actions';
 import { loggerMiddleware } from './middlewares';
@@ -22,6 +23,28 @@ export class AnduxStore {
     // Lets get the data needed from the reducers and create the initialState
     for (const key in reducers) {
       if (reducers.hasOwnProperty(key)) {
+        const Reducer = reducers[key];
+
+        Object.defineProperty(Reducer.prototype, `reduce`, {
+          value: function(state?: Map<string, any>, action?: any) {
+            if (action && state) {
+              // Convert the action type to method name
+              // example:  API_CALL_LOAD_STARTED > apiCallLoadStarted
+              const methodName = convertActionTypeToMethodName(action.type);
+
+              // Check if a handler for this action is defined and execute
+              if (this[methodName]) {
+                state = this[methodName](state, action);
+              }
+            }
+
+            // If we are doing nothing, return the state or initialState if no state is given
+            return state || this.initialState;
+          },
+          writable: true
+        });
+
+
         const reducer = new reducers[key]();
 
         // Reducer must have a key
@@ -35,7 +58,7 @@ export class AnduxStore {
         }
 
         initialState[reducer.key] = reducer.initialState;
-        reducerMethods[reducer.key] = reducer['reduce'];
+        reducerMethods[reducer.key] = reducer['reduce'].bind(reducer);
       }
     }
 

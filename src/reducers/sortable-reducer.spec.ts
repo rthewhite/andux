@@ -3,10 +3,28 @@ import { Map, List } from 'immutable';
 
 import { AnduxReducer } from './reducer';
 import { SortableReducer } from './sortable-reducer';
+import { convertActionTypeToMethodName } from './../utils';
 
 @SortableReducer('Awesome')
-class AwesomeReducer extends AnduxReducer {
-  initialState = 'foobar';
+class AwesomeReducer implements AnduxReducer {
+  public initialState = 'foobar';
+  public key = 'foobar';
+
+  reduce(state, action) {
+    if (action && state) {
+      // Convert the action type to method name
+      // example:  API_CALL_LOAD_STARTED > apiCallLoadStarted
+      const methodName = convertActionTypeToMethodName(action.type);
+
+      // Check if a handler for this action is defined and execute
+      if (this[methodName]) {
+        state = this[methodName](state, action);
+      }
+    }
+
+    // If we are doing nothing, return the state or initialState if no state is given
+    return state || this.initialState;
+  }
 }
 
 const reducer = new AwesomeReducer();

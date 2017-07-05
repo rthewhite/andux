@@ -11,14 +11,14 @@ import { Map, List } from 'immutable';
 import { Observable } from 'rxjs/Observable';
 import { AnduxStore } from './store';
 
-class ReducerOne extends AnduxReducer {
+class ReducerOne implements AnduxReducer {
   public key = 'reducerOne';
   public initialState = Map({
     test: 'foobar1'
   });
 }
 
-class ReducerTwo extends AnduxReducer {
+class ReducerTwo implements AnduxReducer {
   public key = 'reducerTwo';
   public initialState = Map({
     test: 'foobar2'
@@ -53,7 +53,7 @@ describe('Store', () => {
     it('Calling dispatch should dispatch the given action to the reducer', () => {
       let reducerCalled = false;
 
-      class TestReducer extends AnduxReducer {
+      class TestReducer implements AnduxReducer {
         public key = 'test';
         public initialState = Map({
           foo: 'bar'
@@ -144,7 +144,7 @@ describe('Store', () => {
     });
 
     it('Observable should only trigger when the observed value changes', () => {
-      class FooReducer extends AnduxReducer {
+      class FooReducer implements AnduxReducer {
         public key = 'foo';
         public initialState = Map({
           foo: 'bar',
@@ -164,7 +164,7 @@ describe('Store', () => {
         }
       }
 
-      class BarReducer extends AnduxReducer {
+      class BarReducer implements AnduxReducer {
         public key = 'bar';
         public initialState = Map({
           foo: 'bar',
@@ -258,7 +258,7 @@ describe('Store', () => {
 
     it('should work properly when listeners trigger a new state change', done => {
 
-      class FooReducer extends AnduxReducer {
+      class FooReducer implements AnduxReducer {
         public key = 'foo';
         public initialState = Map({
           foo: undefined,
@@ -326,7 +326,7 @@ describe('Store', () => {
     });
 
     it('Should be able to unsubscribe', () => {
-      class FooReducer extends AnduxReducer {
+      class FooReducer implements AnduxReducer {
         public key = 'foo';
         public initialState = Map({
           foo: 'bar',

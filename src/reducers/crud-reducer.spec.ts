@@ -3,11 +3,28 @@ import { Map, List } from 'immutable';
 
 import { AnduxReducer } from './reducer';
 import { CrudReducer } from './crud-reducer';
+import { convertActionTypeToMethodName } from './../utils';
 
 @CrudReducer('Some')
-class SomeReducer extends AnduxReducer {
+class SomeReducer implements AnduxReducer {
   public initialState = {};
   public key = 'some';
+
+  reduce(state, action) {
+    if (action && state) {
+      // Convert the action type to method name
+      // example:  API_CALL_LOAD_STARTED > apiCallLoadStarted
+      const methodName = convertActionTypeToMethodName(action.type);
+
+      // Check if a handler for this action is defined and execute
+      if (this[methodName]) {
+        state = this[methodName](state, action);
+      }
+    }
+
+    // If we are doing nothing, return the state or initialState if no state is given
+    return state || this.initialState;
+  }
 }
 const reducer = new SomeReducer();
 
@@ -16,7 +33,7 @@ describe('CrudReducer', () => {
     describe('loadItemsStarted', () => {
       it('should define only define a loadItemsStarted handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -47,7 +64,7 @@ describe('CrudReducer', () => {
     describe('loadItemsSuccess', () => {
       it('should only define a loadItemsSuccess handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -113,7 +130,7 @@ describe('CrudReducer', () => {
     describe('loadItemsFailed', () => {
       it('should only define a loadItemsFailed handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -146,7 +163,7 @@ describe('CrudReducer', () => {
     describe('getItemStarted', () => {
       it('should only define a getItemStarted handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -176,7 +193,7 @@ describe('CrudReducer', () => {
     describe('getItemSuccess', () => {
       it('should only define a getItemSuccessHandler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -239,7 +256,7 @@ describe('CrudReducer', () => {
     describe('getItemFailed', () => {
       it('should only define a getItemFailed handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -266,7 +283,7 @@ describe('CrudReducer', () => {
     describe('createItemStarted', () => {
       it('should only define a createItemStarted handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -292,7 +309,7 @@ describe('CrudReducer', () => {
     describe('createItemSuccess', () => {
       it('should only define a createItemSuccess handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -351,7 +368,7 @@ describe('CrudReducer', () => {
     describe('updateItemFailed', () => {
       it('should only define a updateItemFailed handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -386,7 +403,7 @@ describe('CrudReducer', () => {
     describe('updateItemStarted', () => {
       it('should only define a updateItemStarted handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -412,7 +429,7 @@ describe('CrudReducer', () => {
     describe('updateItemSuccess', () => {
       it('should onlye define a updateItemSuccess handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -464,7 +481,7 @@ describe('CrudReducer', () => {
     describe('updateItemFailed', () => {
       it('should only define a updateItemFailed handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -498,7 +515,7 @@ describe('CrudReducer', () => {
     describe('deleteItemStarted', () => {
       it('should only define a deleteItemStarted handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -524,7 +541,7 @@ describe('CrudReducer', () => {
     describe('deleteItemSuccess', () => {
       it('should only define a deleteItemSuccess handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
@@ -576,7 +593,7 @@ describe('CrudReducer', () => {
     describe('deleteItemFailed', () => {
       it('should only define a deleteItemFailed handler if none is present', () => {
         @CrudReducer('My')
-        class MyReducer extends AnduxReducer {
+        class MyReducer implements AnduxReducer {
           public key = 'my';
           public initialState = Map({});
 
