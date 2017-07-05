@@ -36,6 +36,13 @@ export class AnduxStore {
               if (this[methodName]) {
                 state = this[methodName](state, action);
               }
+
+              // Apply tranformers
+              if (this['_transformers'] && this['_transformers'].length > 0) {
+                this['_transformers'].forEach(transformer => {
+                  state = transformer.transform(state, action);
+                });
+              }
             }
 
             // If we are doing nothing, return the state or initialState if no state is given

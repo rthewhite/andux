@@ -1,7 +1,9 @@
-import { AnduxReducer } from './reducers/reducer';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as sinonChai  from 'sinon-chai';
+
+import { AnduxReducer } from './reducers/reducer';
+import { Transformer, Transformable } from './reducers';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -385,6 +387,66 @@ describe('Store', () => {
 
       expect(spyTwo).to.have.been.calledTwice;
       expect(spyTwo).to.not.have.been.calledWith('bar 3');
+    });
+  });
+
+  describe('Transformers', () => {
+    it('transformers should be applied', () => {
+
+      const stateSpy = sinon.spy();
+      const actionSpy = sinon.spy();
+
+      function FoobarReducer() {
+        return (reducer) => {
+          // Make sure it's transformable
+          Transformable(reducer);
+
+          const testTransformer = function(state, action) {
+            if (state) {
+              stateSpy(state);
+            }
+
+            if (action && action.type === 'FOOBAR_TEST') {
+              actionSpy(action);
+            }
+
+            return state;
+          };
+
+          // Add transformer
+          const transformer = new Transformer('testTransformer', testTransformer , 60);
+          reducer.prototype.addTransformer(transformer);
+
+          return reducer;
+        };
+      }
+
+      const state = Map({
+        test: 'foobar1'
+      });
+
+      @FoobarReducer()
+      class AwesomeReducer implements AnduxReducer {
+        public key = 'awesome';
+        public initialState = state;
+      }
+
+      const transformerReducers = {
+        awesomeReducer: AwesomeReducer
+      };
+
+      const store = new AnduxStore(transformerReducers, [], false);
+
+      const action = {
+        type: 'FOOBAR_TEST',
+        payload: {}
+      };
+
+      store.dispatch(action);
+
+      // Should be called twice once with init, once with FOOBAR_TEST
+      expect(actionSpy).to.have.been.calledWith(action);
+      expect(stateSpy).to.have.been.calledTwice;
     });
   });
 });

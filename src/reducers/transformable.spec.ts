@@ -75,29 +75,6 @@ describe('Transformable', () => {
     expect(reducer['removeTransformer']).to.exist;
   });
 
-  describe('transform', () => {
-    it('should wrap the reduce method and call transfomers at the end with the state', () => {
-      @Transformable
-      class MyReducer {
-        reduce(state) {
-          return state;
-        }
-      }
-
-      const transformer = new Transformer('foo', (state) => {
-        state.foo = 'not bar anymore';
-        return state;
-      }, 50);
-
-      const state = {foo: 'bar'};
-      const reducer = new MyReducer();
-      reducer['addTransformer'](transformer);
-
-      const newState = reducer.reduce(state);
-      expect(newState.foo).to.equal('not bar anymore');
-    });
-  });
-
   describe('addTransformer', () => {
     it('should order transformers based on weight', () => {
 
@@ -110,10 +87,10 @@ describe('Transformable', () => {
       reducer['addTransformer']({name: 'foo30', fn: () => {}, weight: 30});
       reducer['addTransformer']({name: 'foo15', fn: () => {}, weight: 15});
 
-      expect(reducer['transformers'][3].name).to.equal('foo30');
-      expect(reducer['transformers'][2].name).to.equal('foo20');
-      expect(reducer['transformers'][1].name).to.equal('foo15');
-      expect(reducer['transformers'][0].name).to.equal('foo10');
+      expect(reducer['_transformers'][3].name).to.equal('foo30');
+      expect(reducer['_transformers'][2].name).to.equal('foo20');
+      expect(reducer['_transformers'][1].name).to.equal('foo15');
+      expect(reducer['_transformers'][0].name).to.equal('foo10');
 
     });
 
@@ -126,7 +103,7 @@ describe('Transformable', () => {
       reducer['addTransformer'](transformer);
       reducer['addTransformer'](transformer);
 
-      expect(reducer['transformers'].length).to.equal(1);
+      expect(reducer['_transformers'].length).to.equal(1);
     });
 
     it('should be able to add a transformer using a decorator', () => {
@@ -165,9 +142,9 @@ describe('Transformable', () => {
       }
 
       const reducer = new MyReducer();
-      expect(reducer['transformers'].length).to.equal(2);
-      expect(reducer['transformers'][0].name).to.equal('two');
-      expect(reducer['transformers'][1].name).to.equal('one');
+      expect(reducer['_transformers'].length).to.equal(2);
+      expect(reducer['_transformers'][0].name).to.equal('two');
+      expect(reducer['_transformers'][1].name).to.equal('one');
     });
 
     describe('removeTransformer', () => {
@@ -187,9 +164,9 @@ describe('Transformable', () => {
         reducer['removeTransformer'](two);
         reducer['removeTransformer'](two); // Shouldn't fail on trying to remove the same reducer again
 
-        expect(reducer['transformers'].length).to.equal(2);
-        expect(reducer['transformers'][0]).to.equal(one);
-        expect(reducer['transformers'][1]).to.equal(three);
+        expect(reducer['_transformers'].length).to.equal(2);
+        expect(reducer['_transformers'][0]).to.equal(one);
+        expect(reducer['_transformers'][1]).to.equal(three);
       });
     });
   });
