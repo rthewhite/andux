@@ -5,3 +5,5 @@ src
 tsconfig.json
 tslint.json
 .npmignore
+dist/*.spec.js
+.travis.yml

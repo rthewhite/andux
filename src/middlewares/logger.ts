@@ -17,7 +17,7 @@ export const stateTransformer = state => {
   return newState;
 };
 
-export const loggerMiddleware: Middleware = reduxLogger({
+export const loggerMiddleware: Middleware = (reduxLogger as any)({
   collapsed: true,
   stateTransformer
 });
