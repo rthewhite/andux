@@ -3,6 +3,7 @@ dist
 
 # Test results
 coverage
+.nyc_output
 
 # Packages #
 ############
