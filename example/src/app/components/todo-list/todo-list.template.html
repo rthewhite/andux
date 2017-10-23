@@ -1,0 +1,11 @@
+<h1>Todo list</h1>
+<ul>
+  <li *ngFor="let todo of (todos | async)">
+    <input type="checkbox" />
+    <h4>{{todo.description}}</h4>
+    <button (click)="deleteTodo(todo)">Delete</button>
+  </li>
+</ul>
+
+
+<button (click)="addTodo()">Add todo</button>
